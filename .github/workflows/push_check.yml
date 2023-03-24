@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: 'actions/checkout@master'
+        uses: "actions/checkout@master"
 
       - name: Set Node.js
         uses: actions/setup-node@v1
@@ -19,8 +19,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Lint sources
-        run:
-          npm run lint
+        run: npm run lint
 
   unit_test:
     name: Unit tests
@@ -31,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: 'actions/checkout@master'
+        uses: "actions/checkout@master"
 
       - name: Set Node.js
         uses: actions/setup-node@v1
@@ -42,7 +41,7 @@ jobs:
         run: npm ci
       - name: Run tests
         run: npm run test:coverage
-      - name: Coveralls GitHub Action
-        uses: coverallsapp/github-action@1.1.3
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          ARCHIVAL_RPC: ${{ secrets.ARCHIVAL_RPC }}
+          POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
