@@ -21,9 +21,10 @@ interface IDLT is IERC165 {
      * @dev Emitted when `spender` enables `spender` to manage the `subId` token.
      */
     event Approval(
+        address indexed owner,
         address indexed spender,
-        uint256 indexed mainId,
-        uint256 indexed subId,
+        uint256 mainId,
+        uint256 subId,
         uint256 amount
     );
 
@@ -48,7 +49,11 @@ interface IDLT is IERC165 {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(address operator, bool approved) external;
+    function setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) external;
 
     /**
      * @dev Moves `amount` tokens from `sender` to `recipient` using the
@@ -80,7 +85,7 @@ interface IDLT is IERC165 {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) external;
+    ) external returns (bool);
 
     /**
      * @dev Returns the amount of tokens in existed subId.
