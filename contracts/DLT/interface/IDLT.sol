@@ -88,11 +88,39 @@ interface IDLT is IERC165 {
     ) external returns (bool);
 
     /**
-     * @dev Returns the amount of tokens in existed subId.
+     * @dev Returns the amount of whole tokens.
      */
-    function totalSupply(
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns The total supply of all tokens of a given mainId.
+     */
+    function mainTotalSupply(uint256 mainId) external view returns (uint256);
+
+    /**
+     * @dev Returns The total supply of tokens with a given mainId and subId
+     */
+    function subTotalSupply(
         uint256 mainId,
         uint256 subId
+    ) external view returns (uint256);
+
+    /**
+     * @dev Returns Total number of unique mainId value.
+     */
+    function totalMainIds() external view returns (uint256);
+
+    /**
+     * @dev Returns Total number of unique subId values that have been  given for a mainId.
+     */
+    function totalSubIds(uint256 mainId) external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account` in mainId.
+     */
+    function balanceOf(
+        address account,
+        uint256 mainId
     ) external view returns (uint256);
 
     /**
