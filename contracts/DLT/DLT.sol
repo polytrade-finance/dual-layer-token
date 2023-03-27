@@ -178,4 +178,62 @@ contract DLT is Context, ERC165, IDLT {
 
         // _afterTokenTransfer(sender, to, amount);
     }
+
+    /** @dev Creates `amount` tokens and assigns them to `account`
+     *
+     * Emits a {Transfer} event with `sender` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     */
+    function _mint(
+        address account,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        require(account != address(0), "DLT: mint to the zero address");
+
+        ++_totalSupply;
+        unchecked {
+            _mainBalances[mainId][account] += amount;
+            _subBalances[mainId][subId][account] += amount;
+        }
+        emit Transfer(address(0), account, mainId, subId, amount, "");
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, reducing the
+     * total supply.
+     *
+     * Emits a {Transfer} event with `to` set to the zero address.
+     *
+     * Requirements:
+     *
+     * - `account` cannot be the zero address.
+     * - `account` must have at least `amount` tokens.
+     */
+    function _burn(
+        address account,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        require(account != address(0), "DLT: burn from the zero address");
+
+        uint256 fromBalanceMain = _mainBalances[mainId][account];
+        uint256 fromBalanceSub = _subBalances[mainId][subId][account];
+
+        require(fromBalanceSub >= amount, "DLT: insufficient balance");
+        unchecked {
+            _mainBalances[mainId][account] = fromBalanceMain - amount;
+            _subBalances[mainId][subId][account] = fromBalanceSub - amount;
+
+            // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
+            --_totalSupply;
+        }
+
+        emit Transfer(account, address(0), mainId, subId, amount, "");
+    }
 }
