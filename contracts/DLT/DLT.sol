@@ -5,6 +5,7 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interface/IDLT.sol";
 
 contract DLT is Context, ERC165, IDLT {
@@ -13,8 +14,16 @@ contract DLT is Context, ERC165, IDLT {
     string private _name;
     string private _symbol;
 
-    uint256 private _totalSupply;
+    // Count
+    uint256 private _totalMainIds;
+    mapping(uint256 => uint256) private _totalSubIds;
 
+    // Supply
+    uint256 private _totalSupply;
+    mapping(uint256 => uint256) private _mainTotalSupply;
+    mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
+
+    // Balances
     mapping(uint256 => mapping(address => uint256)) private _mainBalances;
 
     mapping(uint256 => mapping(uint256 => mapping(address => uint256)))
@@ -36,6 +45,34 @@ contract DLT is Context, ERC165, IDLT {
         return true;
     }
 
+    function mint(address account, uint256 amount) external returns (bool) {
+        _mint(account, amount);
+        return true;
+    }
+
+    function burn(
+        address account,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) external returns (bool) {
+        _burn(account, mainId, subId, amount);
+        return true;
+    }
+
+    /**
+     * @dev See {IDLT-transferFrom}.
+     *
+     * NOTE: Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
+     *
+     * Requirements:
+     *
+     * - `sender` and `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
+     * - the caller must have allowance for ``sender``'s tokens of at least
+     * `amount`.
+     */
     function transferFrom(
         address sender,
         address recipient,
@@ -62,6 +99,13 @@ contract DLT is Context, ERC165, IDLT {
 
     function balanceOf(
         address account,
+        uint256 mainId
+    ) external view returns (uint256) {
+        return _mainBalances[mainId][account];
+    }
+
+    function balanceOf(
+        address account,
         uint256 mainId,
         uint256 subId
     ) external view returns (uint256) {
@@ -77,11 +121,27 @@ contract DLT is Context, ERC165, IDLT {
         return _allowance(owner, spender, mainId, subId);
     }
 
-    function totalSupply(
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function mainTotalSupply(uint256 mainId) external view returns (uint256) {
+        return _mainTotalSupply[mainId];
+    }
+
+    function subTotalSupply(
         uint256 mainId,
         uint256 subId
     ) external view returns (uint256) {
-        return _totalSupply;
+        return _subTotalSupply[mainId][subId];
+    }
+
+    function totalMainIds() external view returns (uint256) {
+        return _totalMainIds;
+    }
+
+    function totalSubIds(uint256 mainId) external view returns (uint256) {
+        return _totalSubIds[mainId];
     }
 
     function isApprovedForAll(
@@ -122,6 +182,19 @@ contract DLT is Context, ERC165, IDLT {
         return _allowances[owner][spender][mainId][subId];
     }
 
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
+     *
+     * This internal function is equivalent to `approve`, and can be used to
+     * e.g. set automatic allowances for certain subsystems, etc.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `owner` cannot be the zero address.
+     * - `spender` cannot be the zero address.
+     */
     function _approve(
         address owner,
         address spender,
@@ -187,20 +260,22 @@ contract DLT is Context, ERC165, IDLT {
      *
      * - `account` cannot be the zero address.
      */
-    function _mint(
-        address account,
-        uint256 mainId,
-        uint256 subId,
-        uint256 amount
-    ) internal virtual {
+    function _mint(address account, uint256 amount) internal virtual {
         require(account != address(0), "DLT: mint to the zero address");
 
-        ++_totalSupply;
+        uint256 newMainId = ++_totalMainIds;
+
         unchecked {
-            _mainBalances[mainId][account] += amount;
-            _subBalances[mainId][subId][account] += amount;
+            _totalSupply += amount;
+            _mainTotalSupply[newMainId] += amount;
+
+            ++_totalSubIds[newMainId];
+
+            _mainBalances[newMainId][account] += amount;
+            _subBalances[newMainId][0][account] += amount;
         }
-        emit Transfer(address(0), account, mainId, subId, amount, "");
+
+        emit Transfer(address(0), account, newMainId, 0, amount, "");
     }
 
     /**
@@ -222,16 +297,17 @@ contract DLT is Context, ERC165, IDLT {
     ) internal virtual {
         require(account != address(0), "DLT: burn from the zero address");
 
-        uint256 fromBalanceMain = _mainBalances[mainId][account];
         uint256 fromBalanceSub = _subBalances[mainId][subId][account];
 
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
-        unchecked {
-            _mainBalances[mainId][account] = fromBalanceMain - amount;
-            _subBalances[mainId][subId][account] = fromBalanceSub - amount;
 
+        unchecked {
+            _totalSupply -= amount;
+            _mainTotalSupply[mainId] -= amount;
+
+            _mainBalances[mainId][account] -= amount;
+            _subBalances[mainId][subId][account] -= amount;
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
-            --_totalSupply;
         }
 
         emit Transfer(account, address(0), mainId, subId, amount, "");
