@@ -5,8 +5,9 @@ pragma solidity ^0.8.17;
 import "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "./interface/IDLT.sol";
 
-contract DLT is Context, ERC165 {
+contract DLT is Context, ERC165, IDLT {
     using Address for address;
 
     string private _name;
@@ -23,4 +24,158 @@ contract DLT is Context, ERC165 {
 
     mapping(address => mapping(address => mapping(uint256 => mapping(uint256 => uint256))))
         private _allowances;
+
+    function approve(
+        address spender,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) external returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, mainId, subId, amount);
+        return true;
+    }
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes calldata data
+    ) external returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(sender, spender, mainId, subId, amount);
+        _transfer(sender, recipient, mainId, subId, amount);
+        return true;
+    }
+
+    function setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) external {
+        require(owner != operator, "DLT: approve to caller");
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
+    }
+
+    function balanceOf(
+        address account,
+        uint256 mainId,
+        uint256 subId
+    ) external view returns (uint256) {
+        return _subBalances[mainId][subId][account];
+    }
+
+    function allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) external view returns (uint256) {
+        return _allowance(owner, spender, mainId, subId);
+    }
+
+    function totalSupply(
+        uint256 mainId,
+        uint256 subId
+    ) external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function isApprovedForAll(
+        address owner,
+        address operator
+    ) external view returns (bool) {
+        return _operatorApprovals[owner][operator];
+    }
+
+    function _spendAllowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        uint256 currentAllowance = _allowance(owner, spender, mainId, subId);
+        if (currentAllowance != type(uint256).max) {
+            require(currentAllowance >= amount, "DLT: insufficient allowance");
+            unchecked {
+                _approve(
+                    owner,
+                    spender,
+                    mainId,
+                    subId,
+                    currentAllowance - amount
+                );
+            }
+        }
+    }
+
+    function _allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) internal view returns (uint256) {
+        return _allowances[owner][spender][mainId][subId];
+    }
+
+    function _approve(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        require(owner != address(0), "DLT: approve from the zero address");
+        require(spender != address(0), "DLT: approve to the zero address");
+
+        _allowances[owner][spender][mainId][subId] = amount;
+        emit Approval(owner, spender, mainId, subId, amount);
+    }
+
+    /**
+     * @dev Moves `amount` of tokens from `sender` to `recipient`.
+     *
+     * This internal function is equivalent to {transfer}, and can be used to
+     * e.g. implement automatic token fees, slashing mechanisms, etc.
+     *
+     * Emits a {Transfer} event.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `from` must have a balance of at least `amount`.
+     */
+    function _transfer(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        require(sender != address(0), "DLT: transfer from the zero address");
+        require(recipient != address(0), "DLT: transfer to the zero address");
+
+        uint256 senderBalanceMain = _mainBalances[mainId][sender];
+        uint256 senderBalanceSub = _subBalances[mainId][subId][sender];
+        require(
+            senderBalanceSub >= amount,
+            "DLT: insufficient balance for transfer"
+        );
+        unchecked {
+            _mainBalances[mainId][sender] = senderBalanceMain - amount;
+            _subBalances[mainId][subId][sender] = senderBalanceSub - amount;
+        }
+
+        _mainBalances[mainId][recipient] += amount;
+        _subBalances[mainId][subId][recipient] += amount;
+
+        emit Transfer(sender, recipient, mainId, subId, amount, "");
+
+        // _afterTokenTransfer(sender, to, amount);
+    }
 }
