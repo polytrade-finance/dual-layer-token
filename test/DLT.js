@@ -9,7 +9,7 @@ describe("DLT", async function () {
 
   beforeEach("Deployments", async function () {
     [owner, user1] = await ethers.getSigners();
-    const DLTFactory = await ethers.getContractFactory("DLT");
+    const DLTFactory = await ethers.getContractFactory("TestDLT");
 
     DLT = await DLTFactory.deploy("Polytrade DLT", "PLT");
 
