@@ -9,8 +9,13 @@ contract TestDLT is DLT {
         symbol;
     }
 
-    function mint(address account, uint256 amount) external {
-        _mint(account, amount);
+    function mint(
+        address account,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) external {
+        _mint(account, mainId, subId, amount);
     }
 
     function burn(

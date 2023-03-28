@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 interface IDLT {
     /**
@@ -10,12 +10,11 @@ interface IDLT {
         address indexed recipient,
         uint256 indexed mainId,
         uint256 subId,
-        uint256 amount,
-        bytes data
+        uint256 amount
     );
 
     /**
-     * @dev Emitted when `spender` enables `spender` to manage the `subId` token.
+     * @dev Emitted when `owner` enables `spender` to manage the `subId` token.
      */
     event Approval(
         address indexed owner,
