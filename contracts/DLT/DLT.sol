@@ -141,10 +141,6 @@ contract DLT is Context, ERC165, IDLT {
         return _subTotalSupply[mainId][subId];
     }
 
-    function totalMainIds() external view returns (uint256) {
-        return _totalMainIds;
-    }
-
     function totalSubIds(uint256 mainId) external view returns (uint256) {
         return _totalSubIds[mainId];
     }
@@ -154,6 +150,10 @@ contract DLT is Context, ERC165, IDLT {
         address operator
     ) external view returns (bool) {
         return _operatorApprovals[owner][operator];
+    }
+
+    function totalMainIds() public view returns (uint256) {
+        return _totalMainIds;
     }
 
     function _spendAllowance(
