@@ -2,11 +2,10 @@
 
 pragma solidity ^0.8.17;
 
-import "@openzeppelin/contracts/utils/Address.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "./interface/IDLT.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { Context } from "@openzeppelin/contracts/utils/Context.sol";
+import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import { IDLT } from "./interface/IDLT.sol";
 
 contract DLT is Context, ERC165, IDLT {
     using Address for address;
@@ -179,15 +178,6 @@ contract DLT is Context, ERC165, IDLT {
         }
     }
 
-    function _allowance(
-        address owner,
-        address spender,
-        uint256 mainId,
-        uint256 subId
-    ) internal view returns (uint256) {
-        return _allowances[owner][spender][mainId][subId];
-    }
-
     /**
      * @dev Sets `amount` as the allowance of `spender` over the `owner` s tokens.
      *
@@ -319,5 +309,14 @@ contract DLT is Context, ERC165, IDLT {
         }
 
         emit Transfer(account, address(0), mainId, subId, amount, "");
+    }
+
+    function _allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) internal view returns (uint256) {
+        return _allowances[owner][spender][mainId][subId];
     }
 }
