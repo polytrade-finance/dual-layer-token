@@ -53,4 +53,11 @@ contract IInvoice {
         uint amountSentToLender;
         InitialMetadata initialMetadata;
     }
+
+    /**
+     * @dev Emitted when `newURI` is set to the InvoiceNFT instead of `oldURI`
+     * @param oldAssetBaseURI, Old URI for the invoice NFT
+     * @param newAssetBaseURI, New URI for the invoice NFT
+     */
+    event InvoiceBaseURISet(string oldAssetBaseURI, string newAssetBaseURI);
 }
