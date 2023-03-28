@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity 0.8.17;
+
 /**
  * @title DLT token receiver interface
  * @dev Interface for any contract that wants to support safeTransfers
@@ -9,7 +12,8 @@ interface IDLTReceiver {
      * by `operator` from `sender`, this function is called.
      *
      * It must return its Solidity selector to confirm the token transfer.
-     * If any other value is returned or the interface is not implemented by the recipient, the transfer will be reverted.
+     * If any other value is returned or the interface is not implemented by the recipient,
+     *  the transfer will be reverted.
      *
      * The selector can be obtained in Solidity with `IDLTReceiver.onDLTReceived.selector`.
      */
