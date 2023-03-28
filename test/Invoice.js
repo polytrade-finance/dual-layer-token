@@ -6,10 +6,9 @@ describe("Invoice", async function () {
   let InvoiceNFT;
 
   let owner;
-  let user1;
 
   beforeEach("Deployments", async function () {
-    [owner, user1] = await ethers.getSigners();
+    [owner] = await ethers.getSigners();
     const DLTFactory = await ethers.getContractFactory("InvoiceNFT");
 
     InvoiceNFT = await DLTFactory.deploy(
