@@ -34,6 +34,11 @@ contract DLT is Context, ERC165, IDLT {
     mapping(address => mapping(address => mapping(uint256 => mapping(uint256 => uint256))))
         private _allowances;
 
+    constructor(string memory name, string memory symbol) {
+        _name = name;
+        _symbol = symbol;
+    }
+
     function approve(
         address spender,
         uint256 mainId,
@@ -84,6 +89,7 @@ contract DLT is Context, ERC165, IDLT {
         address spender = _msgSender();
         _spendAllowance(sender, spender, mainId, subId, amount);
         _transfer(sender, recipient, mainId, subId, amount);
+        data;
         return true;
     }
 
@@ -97,14 +103,14 @@ contract DLT is Context, ERC165, IDLT {
         emit ApprovalForAll(owner, operator, approved);
     }
 
-    function balanceOf(
+    function mainBalanceOf(
         address account,
         uint256 mainId
     ) external view returns (uint256) {
         return _mainBalances[mainId][account];
     }
 
-    function balanceOf(
+    function subBalanceOf(
         address account,
         uint256 mainId,
         uint256 subId
@@ -268,11 +274,12 @@ contract DLT is Context, ERC165, IDLT {
         unchecked {
             _totalSupply += amount;
             _mainTotalSupply[newMainId] += amount;
+            _subTotalSupply[newMainId][1] += amount;
 
             ++_totalSubIds[newMainId];
 
             _mainBalances[newMainId][account] += amount;
-            _subBalances[newMainId][0][account] += amount;
+            _subBalances[newMainId][1][account] += amount;
         }
 
         emit Transfer(address(0), account, newMainId, 0, amount, "");
@@ -304,6 +311,7 @@ contract DLT is Context, ERC165, IDLT {
         unchecked {
             _totalSupply -= amount;
             _mainTotalSupply[mainId] -= amount;
+            _subTotalSupply[mainId][subId] -= amount;
 
             _mainBalances[mainId][account] -= amount;
             _subBalances[mainId][subId][account] -= amount;
