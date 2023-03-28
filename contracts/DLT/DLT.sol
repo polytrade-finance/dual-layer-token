@@ -301,15 +301,6 @@ contract DLT is IDLT {
         _afterTokenTransfer(account, address(0), mainId, subId, amount, "");
     }
 
-    function _allowance(
-        address owner,
-        address spender,
-        uint256 mainId,
-        uint256 subId
-    ) internal view returns (uint256) {
-        return _allowances[owner][spender][mainId][subId];
-    }
-
     /**
      * @dev Hook that is called before any transfer of tokens. This includes
      * minting and burning.
@@ -368,5 +359,14 @@ contract DLT is IDLT {
         subId;
         amount;
         data;
+    }
+
+    function _allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) internal view returns (uint256) {
+        return _allowances[owner][spender][mainId][subId];
     }
 }
