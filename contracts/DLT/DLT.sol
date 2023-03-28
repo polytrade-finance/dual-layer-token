@@ -229,6 +229,8 @@ contract DLT is Context, ERC165, IDLT {
         require(sender != address(0), "DLT: transfer from the zero address");
         require(recipient != address(0), "DLT: transfer to the zero address");
 
+        _beforeTokenTransfer(sender, recipient, mainId, subId, amount);
+
         uint256 senderBalanceMain = _mainBalances[mainId][sender];
         uint256 senderBalanceSub = _subBalances[mainId][subId][sender];
         require(
@@ -245,7 +247,7 @@ contract DLT is Context, ERC165, IDLT {
 
         emit Transfer(sender, recipient, mainId, subId, amount, "");
 
-        // _afterTokenTransfer(sender, to, amount);
+        _afterTokenTransfer(sender, recipient, mainId, subId, amount);
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`
@@ -261,6 +263,8 @@ contract DLT is Context, ERC165, IDLT {
 
         uint256 newMainId = ++_totalMainIds;
 
+        _beforeTokenTransfer(address(0), account, newMainId, 1, amount);
+
         unchecked {
             _totalSupply += amount;
             _mainTotalSupply[newMainId] += amount;
@@ -272,7 +276,9 @@ contract DLT is Context, ERC165, IDLT {
             _subBalances[newMainId][1][account] += amount;
         }
 
-        emit Transfer(address(0), account, newMainId, 0, amount, "");
+        emit Transfer(address(0), account, newMainId, 1, amount, "");
+
+        _afterTokenTransfer(address(0), account, newMainId, 1, amount);
     }
 
     /**
@@ -295,8 +301,9 @@ contract DLT is Context, ERC165, IDLT {
         require(account != address(0), "DLT: burn from the zero address");
 
         uint256 fromBalanceSub = _subBalances[mainId][subId][account];
-
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
+
+        _beforeTokenTransfer(account, address(0), mainId, subId, amount);
 
         unchecked {
             _totalSupply -= amount;
@@ -309,6 +316,8 @@ contract DLT is Context, ERC165, IDLT {
         }
 
         emit Transfer(account, address(0), mainId, subId, amount, "");
+
+        _afterTokenTransfer(account, address(0), mainId, subId, amount);
     }
 
     function _allowance(
@@ -319,4 +328,48 @@ contract DLT is Context, ERC165, IDLT {
     ) internal view returns (uint256) {
         return _allowances[owner][spender][mainId][subId];
     }
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `sender` and `recipient` are both non-zero, `amount` of ``sender``'s tokens
+     * will be transferred to `recipient`.
+     * - when `sender` is zero, `amount` tokens will be minted for `recipient`.
+     * - when `recipient` is zero, `amount` of ``sender``'s tokens will be burned.
+     * - `sender` and `recipient` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _beforeTokenTransfer(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {}
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `sender` and `recipient` are both non-zero, `amount` of ``sender``'s tokens
+     * has been transferred to `recipient`.
+     * - when `sender` is zero, `amount` tokens have been minted for `recipient`.
+     * - when `recipient` is zero, `amount` of ``sender``'s tokens have been burned.
+     * - `sender` and `recipient` are never both zero.
+     *
+     * To learn more about hooks, head to xref:ROOT:extending-contracts.adoc#using-hooks[Using Hooks].
+     */
+    function _afterTokenTransfer(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {}
 }
