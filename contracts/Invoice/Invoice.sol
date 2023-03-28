@@ -83,6 +83,17 @@ contract InvoiceNFT is IERC165, IInvoice, DLT, AccessControl {
     }
 
     /**
+     * @dev Implementation of a getter for invoice metadata
+     * @return Metadata Metadata related to a specific invoice
+     * @param invoiceNumber, Unique uint Invoice Number of the NFT
+     */
+    function getInvoice(
+        uint invoiceNumber
+    ) external view returns (Metadata memory) {
+        return _getInvoice(invoiceNumber);
+    }
+
+    /**
      * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(
@@ -105,5 +116,16 @@ contract InvoiceNFT is IERC165, IInvoice, DLT, AccessControl {
         string memory oldBaseURI = _invoiceBaseURI;
         _invoiceBaseURI = newBaseURI;
         emit InvoiceBaseURISet(oldBaseURI, newBaseURI);
+    }
+
+    /**
+     * @dev Implementation of a getter for invoice metadata
+     * @return Metadata Metadata related to a specific invoice
+     * @param invoiceNumber, Unique uint invoice Number of the NFT
+     */
+    function _getInvoice(
+        uint invoiceNumber
+    ) private view returns (Metadata memory) {
+        return _metadata[invoiceNumber];
     }
 }
