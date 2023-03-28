@@ -118,7 +118,7 @@ interface IDLT is IERC165 {
     /**
      * @dev Returns the amount of tokens owned by `account` in mainId.
      */
-    function balanceOf(
+    function mainBalanceOf(
         address account,
         uint256 mainId
     ) external view returns (uint256);
@@ -126,7 +126,7 @@ interface IDLT is IERC165 {
     /**
      * @dev Returns the amount of tokens owned by `account` in subId.
      */
-    function balanceOf(
+    function subBalanceOf(
         address account,
         uint256 mainId,
         uint256 subId
