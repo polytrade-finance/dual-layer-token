@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.17;
 
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-
-interface IDLT is IERC165 {
+interface IDLT {
     /**
      * @dev Emitted when `subId` token is transferred from `sender` to `recipient`.
      */

@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.17;
 
-import { Address } from "@openzeppelin/contracts/utils/Address.sol";
-import { Context } from "@openzeppelin/contracts/utils/Context.sol";
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { IDLT } from "./interface/IDLT.sol";
 
-contract DLT is Context, ERC165, IDLT {
-    using Address for address;
-
+contract DLT is IDLT {
     string private _name;
     string private _symbol;
 
@@ -44,23 +38,8 @@ contract DLT is Context, ERC165, IDLT {
         uint256 subId,
         uint256 amount
     ) external returns (bool) {
-        address owner = _msgSender();
+        address owner = msg.sender;
         _approve(owner, spender, mainId, subId, amount);
-        return true;
-    }
-
-    function mint(address account, uint256 amount) external returns (bool) {
-        _mint(account, amount);
-        return true;
-    }
-
-    function burn(
-        address account,
-        uint256 mainId,
-        uint256 subId,
-        uint256 amount
-    ) external returns (bool) {
-        _burn(account, mainId, subId, amount);
         return true;
     }
 
@@ -85,7 +64,7 @@ contract DLT is Context, ERC165, IDLT {
         uint256 amount,
         bytes calldata data
     ) external returns (bool) {
-        address spender = _msgSender();
+        address spender = msg.sender;
         _spendAllowance(sender, spender, mainId, subId, amount);
         _transfer(sender, recipient, mainId, subId, amount);
         data;

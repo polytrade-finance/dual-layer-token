@@ -3,12 +3,10 @@
 pragma solidity ^0.8.17;
 
 import { DLT } from "../DLT/DLT.sol";
-import { IERC165 } from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
-import { ERC165 } from "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
 import { IInvoice } from "./interface/IInvoice.sol";
 
-contract InvoiceNFT is IERC165, IInvoice, DLT, AccessControl {
+contract InvoiceNFT is IInvoice, DLT, AccessControl {
     string private _invoiceBaseURI = "https://ipfs.io/ipfs";
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
@@ -91,21 +89,6 @@ contract InvoiceNFT is IERC165, IInvoice, DLT, AccessControl {
         uint invoiceNumber
     ) external view returns (Metadata memory) {
         return _getInvoice(invoiceNumber);
-    }
-
-    /**
-     * @dev See {IERC165-supportsInterface}.
-     */
-    function supportsInterface(
-        bytes4 interfaceId
-    )
-        public
-        view
-        virtual
-        override(IERC165, ERC165, AccessControl)
-        returns (bool)
-    {
-        return interfaceId == type(IERC165).interfaceId;
     }
 
     /**
