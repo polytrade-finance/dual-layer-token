@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Start Point", async function () {
+describe("DLT", async function () {
   let DLT;
 
   let owner;
