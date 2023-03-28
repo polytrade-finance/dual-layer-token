@@ -320,15 +320,6 @@ contract DLT is Context, ERC165, IDLT {
         _afterTokenTransfer(account, address(0), mainId, subId, amount);
     }
 
-    function _allowance(
-        address owner,
-        address spender,
-        uint256 mainId,
-        uint256 subId
-    ) internal view returns (uint256) {
-        return _allowances[owner][spender][mainId][subId];
-    }
-
     /**
      * @dev Hook that is called before any transfer of tokens. This includes
      * minting and burning.
@@ -349,7 +340,13 @@ contract DLT is Context, ERC165, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) internal virtual {}
+    ) internal virtual {
+        sender;
+        recipient;
+        mainId;
+        subId;
+        amount;
+    }
 
     /**
      * @dev Hook that is called after any transfer of tokens. This includes
@@ -371,5 +368,20 @@ contract DLT is Context, ERC165, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) internal virtual {}
+    ) internal virtual {
+        sender;
+        recipient;
+        mainId;
+        subId;
+        amount;
+    }
+
+    function _allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) internal view returns (uint256) {
+        return _allowances[owner][spender][mainId][subId];
+    }
 }
