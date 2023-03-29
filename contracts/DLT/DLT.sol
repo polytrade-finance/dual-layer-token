@@ -119,16 +119,17 @@ contract DLT is IDLT {
      * - `sender` must have a balance of at least `amount`.
      * - the caller must have allowance for `sender`'s tokens of at least `amount`.
      */
-    function safeTransferFrom(
-        address sender,
-        address recipient,
-        uint256 mainId,
-        uint256 subId,
-        uint256 amount
-    ) public returns (bool) {
-        safeTransferFrom(sender, recipient, mainId, subId, amount, "");
-        return true;
-    }
+    // Commented this function to discuss an error.
+    // function safeTransferFrom(
+    //     address sender,
+    //     address recipient,
+    //     uint256 mainId,
+    //     uint256 subId,
+    //     uint256 amount
+    // ) public returns (bool) {
+    //     safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+    //     return true;
+    // }
 
     function safeTransferFrom(
         address sender,
@@ -328,6 +329,7 @@ contract DLT is IDLT {
      * Requirements:
      *
      * - `account` cannot be the zero address.
+     * - `amount` cannot be zero .
      */
     function _mint(
         address account,
@@ -336,15 +338,19 @@ contract DLT is IDLT {
         uint256 amount
     ) internal virtual {
         require(account != address(0), "DLT: mint to the zero address");
+        require(amount != 0, "DLT: mint zero amount");
 
         _beforeTokenTransfer(address(0), account, mainId, subId, amount, "");
+
+        if (_subTotalSupply[mainId][subId] == 0) {
+            ++_totalMainIds;
+            ++_totalSubIds[mainId];
+        }
 
         unchecked {
             _totalSupply += amount;
             _mainTotalSupply[mainId] += amount;
             _subTotalSupply[mainId][subId] += amount;
-
-            ++_totalSubIds[mainId];
 
             _mainBalances[mainId][account] += amount;
             _subBalances[mainId][subId][account] += amount;
@@ -373,6 +379,7 @@ contract DLT is IDLT {
         uint256 amount
     ) internal virtual {
         require(account != address(0), "DLT: burn from the zero address");
+        require(amount != 0, "DLT: burn zero amount");
 
         uint256 fromBalanceSub = _subBalances[mainId][subId][account];
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
@@ -387,6 +394,11 @@ contract DLT is IDLT {
             _mainBalances[mainId][account] -= amount;
             _subBalances[mainId][subId][account] -= amount;
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
+        }
+
+        if (_subTotalSupply[mainId][subId] == 0) {
+            --_totalMainIds;
+            --_totalSubIds[mainId];
         }
 
         emit Transfer(account, address(0), mainId, subId, amount);
