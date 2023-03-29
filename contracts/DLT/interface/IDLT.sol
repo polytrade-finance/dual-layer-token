@@ -60,7 +60,7 @@ interface IDLT {
      *
      * Emits a {Transfer} event.
      */
-    function transferFrom(
+    function safeTransferFrom(
         address sender,
         address recipient,
         uint256 mainId,

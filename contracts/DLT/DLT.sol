@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IDLT } from "./interface/IDLT.sol";
+import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 
 contract DLT is IDLT {
+    using Address for address;
+
     string private _name;
     string private _symbol;
 
@@ -40,33 +44,6 @@ contract DLT is IDLT {
     ) external returns (bool) {
         address owner = msg.sender;
         _approve(owner, spender, mainId, subId, amount);
-        return true;
-    }
-
-    /**
-     * @dev See {IDLT-transferFrom}.
-     *
-     * NOTE: Does not update the allowance if the current allowance
-     * is the maximum `uint256`.
-     *
-     * Requirements:
-     *
-     * - `sender` and `recipient` cannot be the zero address.
-     * - `sender` must have a balance of at least `amount`.
-     * - the caller must have allowance for `sender`'s tokens of at least `amount`.
-     */
-    function transferFrom(
-        address sender,
-        address recipient,
-        uint256 mainId,
-        uint256 subId,
-        uint256 amount,
-        bytes calldata data
-    ) external returns (bool) {
-        address spender = msg.sender;
-        _spendAllowance(sender, spender, mainId, subId, amount);
-        _transfer(sender, recipient, mainId, subId, amount);
-        data;
         return true;
     }
 
@@ -130,8 +107,124 @@ contract DLT is IDLT {
         return _operatorApprovals[owner][operator];
     }
 
+    /**
+     * @dev See {IDLT-transferFrom}.
+     *
+     * NOTE: Does not update the allowance if the current allowance
+     * is the maximum `uint256`.
+     *
+     * Requirements:
+     *
+     * - `sender` and `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
+     * - the caller must have allowance for `sender`'s tokens of at least `amount`.
+     */
+    function safeTransferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) public returns (bool) {
+        safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+        return true;
+    }
+
+    function safeTransferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) public returns (bool) {
+        address spender = msg.sender;
+        _spendAllowance(sender, spender, mainId, subId, amount);
+        _safeTransfer(sender, recipient, mainId, subId, amount, data);
+        return true;
+    }
+
     function totalMainIds() public view returns (uint256) {
         return _totalMainIds;
+    }
+
+    /**
+     * @dev Safely mints `amount` in specific `subId` in specific `mainId` and transfers it to `recipient`.
+     *
+     * Requirements:
+     *
+     * - If `recipient` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived},
+     *   which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeMint(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        _safeMint(recipient, mainId, subId, amount, "");
+    }
+
+    /**
+     * @dev Same as [`_safeMint`], with an additional `data` parameter which is
+     * forwarded in {IDLTReceiver-onDLTReceived} to contract recipients.
+     */
+    function _safeMint(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) internal virtual {
+        _mint(recipient, mainId, subId, amount);
+        require(
+            _checkOnDLTReceived(
+                address(0),
+                recipient,
+                mainId,
+                subId,
+                amount,
+                data
+            ),
+            "DLT: transfer to non DLTReceiver implementer"
+        );
+    }
+
+    /**
+     * @dev Safely transfers `amount` from `subId` in specific `mainId from `sender` to `recipient`,
+     * checking first that contract recipients
+     * are aware of the DLT standard to prevent tokens from being forever locked.
+     *
+     * `data` is additional data, it has no specified format and it is sent in call to `recipient`.
+     *
+     * This internal function is equivalent to {safeTransferFrom}, and can be used to e.g.
+     * implement alternative mechanisms to perform token transfer, such as signature-based.
+     *
+     * Requirements:
+     *
+     * - `sender` cannot be the zero address.
+     * - `recipient` cannot be the zero address.
+     * - `amount` sender can transfer at least his balance.
+     * - If `recipient` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived},
+     *    which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function _safeTransfer(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) internal virtual {
+        _transfer(sender, recipient, mainId, subId, amount);
+        require(
+            _checkOnDLTReceived(sender, recipient, mainId, subId, amount, data),
+            "DLT: transfer to non DLTReceiver implementer"
+        );
     }
 
     function _spendAllowance(
@@ -193,9 +286,9 @@ contract DLT is IDLT {
      *
      * Requirements:
      *
-     * - `from` cannot be the zero address.
-     * - `to` cannot be the zero address.
-     * - `from` must have a balance of at least `amount`.
+     * - `sender` cannot be the zero address.
+     * - `recipient` cannot be the zero address.
+     * - `sender` must have a balance of at least `amount`.
      */
     function _transfer(
         address sender,
@@ -368,5 +461,51 @@ contract DLT is IDLT {
         uint256 subId
     ) internal view returns (uint256) {
         return _allowances[owner][spender][mainId][subId];
+    }
+
+    /**
+     * @dev Internal function to invoke {IDLTReceiver-onDLTReceived} on a target address.
+     * The call is not executed if the target address is not a contract.
+     *
+     * @param sender address representing the previous owner of the given token ID
+     * @param recipient target address that will receive the tokens
+     * @param mainId target address that will receive the tokens
+     * @param subId target address that will receive the tokens
+     * @param data bytes optional data to send along with the call
+     * @return bool whether the call correctly returned the expected magic value
+     */
+    function _checkOnDLTReceived(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) private returns (bool) {
+        if (recipient.isContract()) {
+            try
+                IDLTReceiver(recipient).onDLTReceived(
+                    msg.sender,
+                    sender,
+                    mainId,
+                    subId,
+                    amount,
+                    data
+                )
+            returns (bytes4 retval) {
+                return retval == IDLTReceiver.onDLTReceived.selector;
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert("DLT: transfer to non DLTReceiver implementer");
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
+            }
+        } else {
+            return true;
+        }
     }
 }
