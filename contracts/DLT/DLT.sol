@@ -8,6 +8,11 @@ import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 contract DLT is IDLT {
     using Address for address;
 
+    struct Balance {
+        uint256 mainBalance;
+        mapping(uint256 => uint256) subBalances;
+    }
+
     string private _name;
     string private _symbol;
 
@@ -21,10 +26,11 @@ contract DLT is IDLT {
     mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
 
     // Balances
-    mapping(uint256 => mapping(address => uint256)) private _mainBalances;
+    mapping(uint256 => mapping(address => Balance)) private _balances;
 
-    mapping(uint256 => mapping(uint256 => mapping(address => uint256)))
-        private _subBalances;
+    // mapping(uint256 => mapping(address => uint256)) private _mainBalances;
+    // mapping(uint256 => mapping(uint256 => mapping(address => uint256)))
+    //     private _subBalances;
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
@@ -61,7 +67,7 @@ contract DLT is IDLT {
         address account,
         uint256 mainId
     ) external view returns (uint256) {
-        return _mainBalances[mainId][account];
+        return _balances[mainId][account].mainBalance;
     }
 
     function subBalanceOf(
@@ -69,7 +75,7 @@ contract DLT is IDLT {
         uint256 mainId,
         uint256 subId
     ) external view returns (uint256) {
-        return _subBalances[mainId][subId][account];
+        return _balances[mainId][account].subBalances[subId];
     }
 
     function allowance(
@@ -303,19 +309,20 @@ contract DLT is IDLT {
 
         _beforeTokenTransfer(sender, recipient, mainId, subId, amount, "");
 
-        uint256 senderBalanceMain = _mainBalances[mainId][sender];
-        uint256 senderBalanceSub = _subBalances[mainId][subId][sender];
+        Balance storage senderBalance = _balances[mainId][sender];
+        Balance storage recipientBalance = _balances[mainId][recipient];
+
         require(
-            senderBalanceSub >= amount,
+            senderBalance.subBalances[subId] >= amount,
             "DLT: insufficient balance for transfer"
         );
         unchecked {
-            _mainBalances[mainId][sender] = senderBalanceMain - amount;
-            _subBalances[mainId][subId][sender] = senderBalanceSub - amount;
+            senderBalance.mainBalance -= amount;
+            senderBalance.subBalances[subId] -= amount;
         }
 
-        _mainBalances[mainId][recipient] += amount;
-        _subBalances[mainId][subId][recipient] += amount;
+        recipientBalance.mainBalance += amount;
+        recipientBalance.subBalances[subId] += amount;
 
         emit Transfer(sender, recipient, mainId, subId, amount);
 
@@ -352,8 +359,8 @@ contract DLT is IDLT {
             _mainTotalSupply[mainId] += amount;
             _subTotalSupply[mainId][subId] += amount;
 
-            _mainBalances[mainId][account] += amount;
-            _subBalances[mainId][subId][account] += amount;
+            _balances[mainId][account].mainBalance += amount;
+            _balances[mainId][account].subBalances[subId] += amount;
         }
 
         emit Transfer(address(0), account, mainId, subId, amount);
@@ -381,7 +388,7 @@ contract DLT is IDLT {
         require(account != address(0), "DLT: burn from the zero address");
         require(amount != 0, "DLT: burn zero amount");
 
-        uint256 fromBalanceSub = _subBalances[mainId][subId][account];
+        uint256 fromBalanceSub = _balances[mainId][account].subBalances[subId];
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
 
         _beforeTokenTransfer(account, address(0), mainId, subId, amount, "");
@@ -391,8 +398,9 @@ contract DLT is IDLT {
             _mainTotalSupply[mainId] -= amount;
             _subTotalSupply[mainId][subId] -= amount;
 
-            _mainBalances[mainId][account] -= amount;
-            _subBalances[mainId][subId][account] -= amount;
+            _balances[mainId][account].mainBalance -= amount;
+            _balances[mainId][account].subBalances[subId] -= amount;
+
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
         }
 

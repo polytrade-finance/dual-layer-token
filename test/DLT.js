@@ -35,7 +35,15 @@ describe("DLT", async function () {
     const DLTFactory = await ethers.getContractFactory("TestDLT");
     DLT = await DLTFactory.deploy("Polytrade DLT", "PLT");
 
+    expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
+      ethers.utils.parseEther("0")
+    );
+
     await DLT.mint(owner.address, 1, 1, ethers.utils.parseEther("10000"));
+
+    expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
+      ethers.utils.parseEther("10000")
+    );
   });
 
   describe("Should reflect balances", async function () {
