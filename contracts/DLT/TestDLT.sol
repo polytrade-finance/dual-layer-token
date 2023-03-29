@@ -73,3 +73,27 @@ contract DLTNonReceiver {
         block.timestamp;
     }
 }
+
+contract DLTReceiverRevertable is IDLTReceiver {
+    constructor() {
+        block.timestamp;
+    }
+
+    function onDLTReceived(
+        address operator,
+        address from,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes calldata data
+    ) external returns (bytes4) {
+        operator;
+        from;
+        mainId;
+        subId;
+        amount;
+        data;
+
+        revert("DLTReceiverRevertable");
+    }
+}

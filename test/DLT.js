@@ -5,22 +5,35 @@ describe("DLT", async function () {
   let DLT;
   let DLTReceiver;
   let DLTNonReceiver;
+  let DLTReceiverRevertable;
   let owner;
   let user1;
 
-  beforeEach("Deployments", async function () {
+  before("Static Deployments", async function () {
     [owner, user1] = await ethers.getSigners();
 
-    const DLTFactory = await ethers.getContractFactory("TestDLT");
-    DLT = await DLTFactory.deploy("Polytrade DLT", "PLT");
-
+    // ------------------------------------------------------------------
     const DLTReceiverFactory = await ethers.getContractFactory("DLTReceiver");
     DLTReceiver = await DLTReceiverFactory.deploy();
 
+    // ------------------------------------------------------------------
     const DLTNonReceiverFactory = await ethers.getContractFactory(
       "DLTNonReceiver"
     );
     DLTNonReceiver = await DLTNonReceiverFactory.deploy();
+
+    // ------------------------------------------------------------------
+    const DLTReceiverRevertableFactory = await ethers.getContractFactory(
+      "DLTReceiverRevertable"
+    );
+    DLTReceiverRevertable = await DLTReceiverRevertableFactory.deploy();
+    // ------------------------------------------------------------------
+  });
+
+  beforeEach("Restart Deployment DLT at each test use case", async function () {
+    // ------------------------------------------------------------------
+    const DLTFactory = await ethers.getContractFactory("TestDLT");
+    DLT = await DLTFactory.deploy("Polytrade DLT", "PLT");
 
     await DLT.mint(owner.address, 1, 1, ethers.utils.parseEther("10000"));
   });
@@ -51,7 +64,7 @@ describe("DLT", async function () {
       );
     });
 
-    it("Should decrease balances after burning", async function () {
+    it("Should decrease balances after burning all balances", async function () {
       await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("10000"));
 
       expect(await DLT.totalSupply()).to.equal(0);
@@ -66,6 +79,31 @@ describe("DLT", async function () {
       expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(0);
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(0);
+    });
+
+    it("Should decrease balances after burning half of balances", async function () {
+      await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("5000"));
+
+      expect(await DLT.totalSupply()).to.equal(ethers.utils.parseEther("5000"));
+
+      expect(await DLT.mainTotalSupply(1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
+
+      expect(await DLT.subTotalSupply(1, 1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
+
+      expect(await DLT.totalMainIds()).to.equal(1);
+      expect(await DLT.totalSubIds(1)).to.equal(1);
+
+      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
+
+      expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
     });
 
     it("Should transfer balances after transferFrom", async function () {
@@ -212,8 +250,8 @@ describe("DLT", async function () {
         DLT.connect(owner).setApprovalForAll(owner.address, owner.address, true)
       ).to.be.revertedWith("DLT: approve to caller");
 
-      await expect(
-        DLT.connect(owner).approve(
+      expect(
+        await DLT.connect(owner).approve(
           user1.address,
           1,
           1,
@@ -231,6 +269,27 @@ describe("DLT", async function () {
       ).to.be.revertedWith("DLT: approve to the zero address");
     });
 
+    it("Should revert on MaxUin256 approval", async function () {
+      expect(
+        await DLT.connect(owner).approve(
+          user1.address,
+          1,
+          1,
+          ethers.constants.MaxUint256
+        )
+      );
+
+      await expect(
+        DLT.connect(user1).safeTransferFrom(
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("20000"),
+          1 // byte
+        )
+      ).to.be.revertedWith("DLT: insufficient balance for transfer");
+    });
     it("should revert approve from zero address", async function () {
       await expect(
         DLT.allow(
@@ -281,6 +340,17 @@ describe("DLT", async function () {
       await expect(
         DLT.mint(DLTNonReceiver.address, 1, 1, ethers.utils.parseEther("5000"))
       ).to.revertedWith("DLT: transfer to non DLTReceiver implementer");
+    });
+
+    it("Should revert on mint to DLTReceiverRevertable implementer", async function () {
+      await expect(
+        DLT.mint(
+          DLTReceiverRevertable.address,
+          1,
+          1,
+          ethers.utils.parseEther("5000")
+        )
+      ).to.revertedWith("DLTReceiverRevertable");
     });
   });
 });
