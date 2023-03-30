@@ -8,11 +8,6 @@ import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 contract DLT is IDLT {
     using Address for address;
 
-    struct Balance {
-        uint256 mainBalance;
-        mapping(uint256 => uint256) subBalances;
-    }
-
     string private _name;
     string private _symbol;
 
