@@ -47,7 +47,7 @@ contract DLT is IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) external returns (bool) {
+    ) public returns (bool) {
         address owner = msg.sender;
         _approve(owner, spender, mainId, subId, amount);
         return true;
@@ -57,60 +57,10 @@ contract DLT is IDLT {
         address owner,
         address operator,
         bool approved
-    ) external {
+    ) public {
         require(owner != operator, "DLT: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
-    }
-
-    function mainBalanceOf(
-        address account,
-        uint256 mainId
-    ) external view returns (uint256) {
-        return _balances[mainId][account].mainBalance;
-    }
-
-    function subBalanceOf(
-        address account,
-        uint256 mainId,
-        uint256 subId
-    ) external view returns (uint256) {
-        return _balances[mainId][account].subBalances[subId];
-    }
-
-    function allowance(
-        address owner,
-        address spender,
-        uint256 mainId,
-        uint256 subId
-    ) external view returns (uint256) {
-        return _allowance(owner, spender, mainId, subId);
-    }
-
-    function totalSupply() external view returns (uint256) {
-        return _totalSupply;
-    }
-
-    function mainTotalSupply(uint256 mainId) external view returns (uint256) {
-        return _mainTotalSupply[mainId];
-    }
-
-    function subTotalSupply(
-        uint256 mainId,
-        uint256 subId
-    ) external view returns (uint256) {
-        return _subTotalSupply[mainId][subId];
-    }
-
-    function totalSubIds(uint256 mainId) external view returns (uint256) {
-        return _totalSubIds[mainId];
-    }
-
-    function isApprovedForAll(
-        address owner,
-        address operator
-    ) external view returns (bool) {
-        return _operatorApprovals[owner][operator];
     }
 
     /**
@@ -153,6 +103,56 @@ contract DLT is IDLT {
 
     function totalMainIds() public view returns (uint256) {
         return _totalMainIds;
+    }
+
+    function mainBalanceOf(
+        address account,
+        uint256 mainId
+    ) public view returns (uint256) {
+        return _balances[mainId][account].mainBalance;
+    }
+
+    function subBalanceOf(
+        address account,
+        uint256 mainId,
+        uint256 subId
+    ) public view returns (uint256) {
+        return _balances[mainId][account].subBalances[subId];
+    }
+
+    function allowance(
+        address owner,
+        address spender,
+        uint256 mainId,
+        uint256 subId
+    ) public view returns (uint256) {
+        return _allowance(owner, spender, mainId, subId);
+    }
+
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function mainTotalSupply(uint256 mainId) public view returns (uint256) {
+        return _mainTotalSupply[mainId];
+    }
+
+    function subTotalSupply(
+        uint256 mainId,
+        uint256 subId
+    ) public view returns (uint256) {
+        return _subTotalSupply[mainId][subId];
+    }
+
+    function totalSubIds(uint256 mainId) public view returns (uint256) {
+        return _totalSubIds[mainId];
+    }
+
+    function isApprovedForAll(
+        address owner,
+        address operator
+    ) public view returns (bool) {
+        return _operatorApprovals[owner][operator];
     }
 
     /**
