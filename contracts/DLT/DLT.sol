@@ -28,10 +28,6 @@ contract DLT is IDLT {
     // Balances
     mapping(uint256 => mapping(address => Balance)) private _balances;
 
-    // mapping(uint256 => mapping(address => uint256)) private _mainBalances;
-    // mapping(uint256 => mapping(uint256 => mapping(address => uint256)))
-    //     private _subBalances;
-
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     mapping(address => mapping(address => mapping(uint256 => mapping(uint256 => uint256))))
@@ -98,6 +94,19 @@ contract DLT is IDLT {
         address spender = msg.sender;
         _spendAllowance(sender, spender, mainId, subId, amount);
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
+        return true;
+    }
+
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) public returns (bool) {
+        address spender = msg.sender;
+        _spendAllowance(sender, spender, mainId, subId, amount);
+        _transfer(sender, recipient, mainId, subId, amount);
         return true;
     }
 
