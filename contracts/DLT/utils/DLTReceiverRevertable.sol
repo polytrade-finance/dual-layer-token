@@ -4,9 +4,7 @@ pragma solidity 0.8.17;
 import { IDLTReceiver } from "../interface/IDLTReceiver.sol";
 
 contract DLTReceiverRevertable is IDLTReceiver {
-    constructor() {
-        block.timestamp;
-    }
+    constructor() {}
 
     function onDLTReceived(
         address operator,
@@ -16,13 +14,6 @@ contract DLTReceiverRevertable is IDLTReceiver {
         uint256 amount,
         bytes calldata data
     ) external returns (bytes4) {
-        operator;
-        from;
-        mainId;
-        subId;
-        amount;
-        data;
-
         revert("DLTReceiverRevertable");
     }
 }

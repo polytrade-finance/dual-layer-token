@@ -12,12 +12,6 @@ contract DLTReceiver is IDLTReceiver {
         uint256 amount,
         bytes calldata data
     ) external returns (bytes4) {
-        operator;
-        from;
-        mainId;
-        subId;
-        amount;
-        data;
         return IDLTReceiver.onDLTReceived.selector;
     }
 }

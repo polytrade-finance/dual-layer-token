@@ -435,14 +435,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount,
         bytes memory data
-    ) internal virtual {
-        sender;
-        recipient;
-        mainId;
-        subId;
-        amount;
-        data;
-    }
+    ) internal virtual {}
 
     /**
      * @dev Hook that is called after any transfer of tokens. This includes
@@ -465,14 +458,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount,
         bytes memory data
-    ) internal virtual {
-        sender;
-        recipient;
-        mainId;
-        subId;
-        amount;
-        data;
-    }
+    ) internal virtual {}
 
     function _allowance(
         address owner,
