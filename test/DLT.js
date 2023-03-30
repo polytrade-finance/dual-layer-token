@@ -114,7 +114,7 @@ describe("DLT", async function () {
       );
     });
 
-    it("Should transfer balances after transferFrom", async function () {
+    it("Should transfer balances after safeTransferFrom and transferFrom", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
 
       expect(await DLT.allowance(owner.address, user1.address, 1, 1)).to.equal(
@@ -141,24 +141,34 @@ describe("DLT", async function () {
           1
         );
 
+      await expect(
+        DLT.connect(user1).transferFrom(
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("1000")
+        )
+      ).to.not.reverted;
+
       expect(await DLT.allowance(owner.address, user1.address, 1, 1)).to.equal(
-        ethers.utils.parseEther("5000")
+        ethers.utils.parseEther("4000")
       );
 
       expect(await DLT.mainBalanceOf(user1.address, 1)).to.equal(
-        ethers.utils.parseEther("5000")
+        ethers.utils.parseEther("6000")
       );
 
       expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
-        ethers.utils.parseEther("5000")
+        ethers.utils.parseEther("6000")
       );
 
       expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("5000")
+        ethers.utils.parseEther("4000")
       );
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
-        ethers.utils.parseEther("5000")
+        ethers.utils.parseEther("4000")
       );
     });
 
@@ -222,7 +232,7 @@ describe("DLT", async function () {
       );
     });
 
-    it("Should revert transferFrom on amount greater than owner's balance", async function () {
+    it("Should revert safeTransferFrom on amount greater than owner's balance", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
       await expect(
         DLT.connect(user1).safeTransferFrom(
@@ -236,7 +246,20 @@ describe("DLT", async function () {
       ).to.be.revertedWith("DLT: insufficient balance for transfer");
     });
 
-    it("Should revert transferFrom to address zero", async function () {
+    it("Should revert transferFrom on amount greater than owner's balance", async function () {
+      await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
+      await expect(
+        DLT.connect(user1).transferFrom(
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("20000")
+        )
+      ).to.be.revertedWith("DLT: insufficient balance for transfer");
+    });
+
+    it("Should revert safeTransferFrom to address zero", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
 
       await expect(
@@ -247,6 +270,20 @@ describe("DLT", async function () {
           1,
           ethers.utils.parseEther("20000"),
           1 // byte
+        )
+      ).to.be.revertedWith("DLT: transfer to the zero address");
+    });
+
+    it("Should revert transferFrom to address zero", async function () {
+      await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
+
+      await expect(
+        DLT.connect(user1).transferFrom(
+          owner.address,
+          ethers.constants.AddressZero,
+          1,
+          1,
+          ethers.utils.parseEther("20000")
         )
       ).to.be.revertedWith("DLT: transfer to the zero address");
     });
