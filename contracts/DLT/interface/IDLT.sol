@@ -2,6 +2,11 @@
 pragma solidity 0.8.17;
 
 interface IDLT {
+    struct Balance {
+        uint256 mainBalance;
+        mapping(uint256 => uint256) subBalances;
+    }
+
     /**
      * @dev Emitted when `subId` token is transferred from `sender` to `recipient`.
      */
