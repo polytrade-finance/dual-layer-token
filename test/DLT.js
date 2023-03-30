@@ -122,14 +122,9 @@ describe("DLT", async function () {
       );
 
       expect(
-        await DLT.connect(user1).safeTransferFrom(
-          owner.address,
-          user1.address,
-          1,
-          1,
-          ethers.utils.parseEther("5000"),
-          1 // byte
-        )
+        await DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256)"
+        ](owner.address, user1.address, 1, 1, ethers.utils.parseEther("5000"))
       )
         .to.emit(DLT, "Transfer")
         .withArgs(
@@ -137,8 +132,7 @@ describe("DLT", async function () {
           user1.address,
           1,
           1,
-          ethers.utils.parseEther("5000"),
-          1
+          ethers.utils.parseEther("5000")
         );
 
       await expect(
@@ -234,8 +228,11 @@ describe("DLT", async function () {
 
     it("Should revert safeTransferFrom on amount greater than owner's balance", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
+
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           user1.address,
           1,
@@ -263,7 +260,9 @@ describe("DLT", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("20000"));
 
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           ethers.constants.AddressZero,
           1,
@@ -291,7 +290,9 @@ describe("DLT", async function () {
     it("Should revert insufficient allowance methods", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           user1.address,
           1,
@@ -341,7 +342,9 @@ describe("DLT", async function () {
       );
 
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           user1.address,
           1,
@@ -367,7 +370,9 @@ describe("DLT", async function () {
     it("Should not revert on transfer to DLTReceiver implementer", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           DLTReceiver.address,
           1,
@@ -381,7 +386,9 @@ describe("DLT", async function () {
     it("Should revert on transfer to DLTNonReceiver implementer", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
       await expect(
-        DLT.connect(user1).safeTransferFrom(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
           owner.address,
           DLTNonReceiver.address,
           1,
@@ -411,6 +418,29 @@ describe("DLT", async function () {
           1,
           1,
           ethers.utils.parseEther("5000")
+        )
+      ).to.be.revertedWith("DLTReceiverRevertable");
+    });
+
+    it("Should not revert on calling onDLTReceived in DLTReceiver", async function () {
+      const addressZero = ethers.constants.AddressZero;
+
+      await expect(
+        DLTReceiver.onDLTReceived(addressZero, addressZero, 1, 1, 1, 1)
+      ).to.not.be.reverted;
+    });
+
+    it("Should revert on calling onDLTReceived in DLTReceiverRevertable", async function () {
+      const addressZero = ethers.constants.AddressZero;
+
+      await expect(
+        DLTReceiverRevertable.onDLTReceived(
+          addressZero,
+          addressZero,
+          1,
+          1,
+          1,
+          1
         )
       ).to.be.revertedWith("DLTReceiverRevertable");
     });

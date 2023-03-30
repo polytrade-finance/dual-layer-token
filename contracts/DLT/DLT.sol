@@ -66,17 +66,16 @@ contract DLT is IDLT {
      * - `sender` must have a balance of at least `amount`.
      * - the caller must have allowance for `sender`'s tokens of at least `amount`.
      */
-    // Commented this function to discuss an error.
-    // function safeTransferFrom(
-    //     address sender,
-    //     address recipient,
-    //     uint256 mainId,
-    //     uint256 subId,
-    //     uint256 amount
-    // ) public returns (bool) {
-    //     safeTransferFrom(sender, recipient, mainId, subId, amount, "");
-    //     return true;
-    // }
+    function safeTransferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) public returns (bool) {
+        safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+        return true;
+    }
 
     function safeTransferFrom(
         address sender,
