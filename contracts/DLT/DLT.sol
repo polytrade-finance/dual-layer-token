@@ -73,7 +73,9 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+        address spender = msg.sender;
+        _spendAllowance(sender, spender, mainId, subId, amount);
+        _safeTransfer(sender, recipient, mainId, subId, amount, "");
         return true;
     }
 
