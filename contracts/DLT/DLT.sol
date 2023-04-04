@@ -106,6 +106,37 @@ contract DLT is IDLT {
         return true;
     }
 
+    function transfer(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) public returns (bool) {
+        _transfer(msg.sender, recipient, mainId, subId, amount);
+        return true;
+    }
+
+    function safeTransfer(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) public returns (bool) {
+        _safeTransfer(msg.sender, recipient, mainId, subId, amount, "");
+        return true;
+    }
+
+    function safeTransfer(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) public returns (bool) {
+        _safeTransfer(msg.sender, recipient, mainId, subId, amount, data);
+        return true;
+    }
+
     function totalMainIds() public view returns (uint256) {
         return _totalMainIds;
     }

@@ -28,7 +28,7 @@ contract TestDLT is DLT {
         _burn(account, mainId, subId, amount);
     }
 
-    function transfer(
+    function transferFromZeroAddress(
         address sender,
         address recipient,
         uint256 mainId,
