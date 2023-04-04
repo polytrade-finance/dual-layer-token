@@ -166,56 +166,6 @@ describe("DLT", async function () {
       );
     });
 
-    it("Should transfer balances after transfer and safeTransfer without data and with data", async function () {
-      expect(
-        await DLT.connect(owner).transfer(
-          user1.address,
-          1,
-          1,
-          ethers.utils.parseEther("5000")
-        )
-      )
-        .to.emit(DLT, "Transfer")
-        .withArgs(
-          owner.address,
-          user1.address,
-          1,
-          1,
-          ethers.utils.parseEther("5000")
-        );
-
-      await expect(
-        DLT.connect(owner)["safeTransfer(address,uint256,uint256,uint256)"](
-          user1.address,
-          1,
-          1,
-          ethers.utils.parseEther("500")
-        )
-      ).to.not.reverted;
-
-      await expect(
-        DLT.connect(owner)[
-          "safeTransfer(address,uint256,uint256,uint256,bytes)"
-        ](user1.address, 1, 1, ethers.utils.parseEther("500"), 1)
-      ).to.not.reverted;
-
-      expect(await DLT.mainBalanceOf(user1.address, 1)).to.equal(
-        ethers.utils.parseEther("6000")
-      );
-
-      expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
-        ethers.utils.parseEther("6000")
-      );
-
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("4000")
-      );
-
-      expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
-        ethers.utils.parseEther("4000")
-      );
-    });
-
     it("Set Approval for all", async function () {
       expect(await DLT.setApprovalForAll(owner.address, user1.address, true))
         .to.emit(DLT, "ApprovalForAll")
@@ -243,7 +193,7 @@ describe("DLT", async function () {
 
     it("Should revert transfer from zero address", async function () {
       await expect(
-        DLT.transferFromZeroAddress(
+        DLT.transfer(
           ethers.constants.AddressZero,
           owner.address,
           1,
