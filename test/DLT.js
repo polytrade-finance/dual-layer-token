@@ -114,7 +114,7 @@ describe("DLT", async function () {
       );
     });
 
-    it("Should transfer balances after safeTransferFrom and transferFrom", async function () {
+    it("Should transfer balances after safeTransferFrom and transferFrom with approvals", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
 
       expect(await DLT.allowance(owner.address, user1.address, 1, 1)).to.equal(
@@ -166,10 +166,78 @@ describe("DLT", async function () {
       );
     });
 
+    it("Should transfer balances after safeTransferFrom and transferFrom by the owner himself without approvals", async function () {
+      expect(
+        await DLT.connect(owner)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256)"
+        ](owner.address, user1.address, 1, 1, ethers.utils.parseEther("5000"))
+      )
+        .to.emit(DLT, "Transfer")
+        .withArgs(
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("5000")
+        );
+
+      await expect(
+        DLT.connect(owner)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("1000"),
+          1 // byte
+        )
+      ).to.not.reverted;
+
+      await expect(
+        DLT.connect(owner).transferFrom(
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("1000")
+        )
+      ).to.not.reverted;
+
+      expect(await DLT.mainBalanceOf(user1.address, 1)).to.equal(
+        ethers.utils.parseEther("7000")
+      );
+
+      expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
+        ethers.utils.parseEther("7000")
+      );
+
+      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
+        ethers.utils.parseEther("3000")
+      );
+
+      expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
+        ethers.utils.parseEther("3000")
+      );
+    });
+
     it("Set Approval for all", async function () {
       expect(await DLT.setApprovalForAll(owner.address, user1.address, true))
         .to.emit(DLT, "ApprovalForAll")
         .withArgs(owner.address, user1.address, true);
+
+      await expect(
+        DLT.connect(user1)[
+          "safeTransferFrom(address,address,uint256,uint256,uint256,bytes)"
+        ](
+          owner.address,
+          user1.address,
+          1,
+          1,
+          ethers.utils.parseEther("1000"),
+          1 // byte
+        )
+      ).to.not.reverted;
 
       expect(await DLT.isApprovedForAll(owner.address, user1.address));
     });
