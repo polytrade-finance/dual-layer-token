@@ -74,7 +74,11 @@ contract DLT is IDLT {
         uint256 amount
     ) public returns (bool) {
         address spender = msg.sender;
-        _spendAllowance(sender, spender, mainId, subId, amount);
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
         _safeTransfer(sender, recipient, mainId, subId, amount, "");
         return true;
     }
@@ -88,7 +92,11 @@ contract DLT is IDLT {
         bytes memory data
     ) public returns (bool) {
         address spender = msg.sender;
-        _spendAllowance(sender, spender, mainId, subId, amount);
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
         return true;
     }
@@ -101,7 +109,11 @@ contract DLT is IDLT {
         uint256 amount
     ) public returns (bool) {
         address spender = msg.sender;
-        _spendAllowance(sender, spender, mainId, subId, amount);
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
         _transfer(sender, recipient, mainId, subId, amount);
         return true;
     }
@@ -472,6 +484,13 @@ contract DLT is IDLT {
         uint256 subId
     ) internal view returns (uint256) {
         return _allowances[owner][spender][mainId][subId];
+    }
+
+    function _isApprovedOrOwner(
+        address sender,
+        address spender
+    ) internal view virtual returns (bool) {
+        return (sender == spender || isApprovedForAll(sender, spender));
     }
 
     /**
