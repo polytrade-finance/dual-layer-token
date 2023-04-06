@@ -50,11 +50,7 @@ interface IDLT {
      *
      * Emits an {ApprovalForAll} event.
      */
-    function setApprovalForAll(
-        address owner,
-        address operator,
-        bool approved
-    ) external;
+    function setApprovalForAll(address operator, bool approved) external;
 
     /**
      * @dev Moves `amount` tokens from `sender` to `recipient` using the
