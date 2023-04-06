@@ -73,13 +73,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        address spender = msg.sender;
-
-        if (!_isApprovedOrOwner(sender, spender)) {
-            _spendAllowance(sender, spender, mainId, subId, amount);
-        }
-
-        _safeTransfer(sender, recipient, mainId, subId, amount, "");
+        _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
         return true;
     }
 
@@ -91,13 +85,7 @@ contract DLT is IDLT {
         uint256 amount,
         bytes memory data
     ) public returns (bool) {
-        address spender = msg.sender;
-
-        if (!_isApprovedOrOwner(sender, spender)) {
-            _spendAllowance(sender, spender, mainId, subId, amount);
-        }
-
-        _safeTransfer(sender, recipient, mainId, subId, amount, data);
+        _safeTransferFrom(sender, recipient, mainId, subId, amount, data);
         return true;
     }
 
@@ -108,13 +96,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        address spender = msg.sender;
-
-        if (!_isApprovedOrOwner(sender, spender)) {
-            _spendAllowance(sender, spender, mainId, subId, amount);
-        }
-
-        _transfer(sender, recipient, mainId, subId, amount);
+        _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
         return true;
     }
 
@@ -249,6 +231,23 @@ contract DLT is IDLT {
             _checkOnDLTReceived(sender, recipient, mainId, subId, amount, data),
             "DLT: transfer to non DLTReceiver implementer"
         );
+    }
+
+    function _safeTransferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount,
+        bytes memory data
+    ) internal virtual {
+        address spender = msg.sender;
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
+        _safeTransfer(sender, recipient, mainId, subId, amount, data);
     }
 
     function _spendAllowance(
