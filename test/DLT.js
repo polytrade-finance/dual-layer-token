@@ -222,7 +222,7 @@ describe("DLT", async function () {
     });
 
     it("Set Approval for all", async function () {
-      expect(await DLT.setApprovalForAll(owner.address, user1.address, true))
+      expect(await DLT.setApprovalForAll(user1.address, true))
         .to.emit(DLT, "ApprovalForAll")
         .withArgs(owner.address, user1.address, true);
 
@@ -373,7 +373,7 @@ describe("DLT", async function () {
 
     it("Should revert setApprovalForAll to the caller", async function () {
       await expect(
-        DLT.connect(owner).setApprovalForAll(owner.address, owner.address, true)
+        DLT.connect(owner).setApprovalForAll(owner.address, true)
       ).to.be.revertedWith("DLT: approve to caller");
     });
 
@@ -388,6 +388,16 @@ describe("DLT", async function () {
       );
     });
 
+    it("Should revert on approve when approving same owner", async function () {
+      await expect(
+        DLT.connect(owner).approve(
+          owner.address,
+          1,
+          1,
+          ethers.utils.parseEther("10000")
+        )
+      ).to.be.revertedWith("DLT: approval to current owner");
+    });
     it("Should revert on approve for address zero", async function () {
       await expect(
         DLT.connect(owner).approve(

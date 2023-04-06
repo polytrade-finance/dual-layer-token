@@ -40,18 +40,16 @@ contract DLT is IDLT {
         uint256 amount
     ) public returns (bool) {
         address owner = msg.sender;
+        require(spender != owner, "DLT: approval to current owner");
         _approve(owner, spender, mainId, subId, amount);
         return true;
     }
 
-    function setApprovalForAll(
-        address owner,
-        address operator,
-        bool approved
-    ) public {
-        require(owner != operator, "DLT: approve to caller");
-        _operatorApprovals[owner][operator] = approved;
-        emit ApprovalForAll(owner, operator, approved);
+    /**
+     * @dev See {DLT-setApprovalForAll}.
+     */
+    function setApprovalForAll(address operator, bool approved) public {
+        _setApprovalForAll(msg.sender, operator, approved);
     }
 
     /**
@@ -297,6 +295,16 @@ contract DLT is IDLT {
 
         _allowances[owner][spender][mainId][subId] = amount;
         emit Approval(owner, spender, mainId, subId, amount);
+    }
+
+    function _setApprovalForAll(
+        address owner,
+        address operator,
+        bool approved
+    ) internal virtual {
+        require(owner != operator, "DLT: approve to caller");
+        _operatorApprovals[owner][operator] = approved;
+        emit ApprovalForAll(owner, operator, approved);
     }
 
     /**
