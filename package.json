@@ -17,7 +17,7 @@
     "lint:fix": "npm run lint:js-fix && npm run lint:sol-fix",
     "prepare": "husky install"
   },
-  "author": "Mohammad Z.R.",
+  "author": "Polytrade",
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.32.0",

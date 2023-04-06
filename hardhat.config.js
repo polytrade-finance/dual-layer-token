@@ -16,12 +16,6 @@ module.exports = {
     },
   },
   networks: {
-    hardhat: {
-      forking: {
-        url: `${ARCHIVAL_RPC}`,
-        blockNumber: 32228672,
-      },
-    },
     mumbai: {
       url: `${ARCHIVAL_RPC}`,
       accounts: [
