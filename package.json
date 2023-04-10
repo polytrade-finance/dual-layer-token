@@ -1,8 +1,9 @@
 {
-  "name": "protocol-nft-marketplace",
-  "description": "NFT Marketplace's Protocol",
-  "version": "1.0.0",
+  "name": "dual-layer-token",
+  "description": "This name has been chosen because the DLT operates with a dual-layer structure, utilizing mainIds and subIds for versatile token management. DLT is not yet a standard, but it aims to offer a comprehensive solution for various industries, including gaming, invoice trading, and real estate.",
+  "version": "0.1.0",
   "directories": {
+    "contracts": "contracts",
     "test": "test"
   },
   "scripts": {
