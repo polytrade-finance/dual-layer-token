@@ -1,10 +1,14 @@
 {
   "name": "dual-layer-token",
   "description": "This name has been chosen because the DLT operates with a dual-layer structure, utilizing mainIds and subIds for versatile token management. DLT is not yet a standard, but it aims to offer a comprehensive solution for various industries, including gaming, invoice trading, and real estate.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "directories": {
     "contracts": "contracts",
     "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polytrade-finance/dual-layer-token.git"
   },
   "scripts": {
     "test": "npx hardhat test",
