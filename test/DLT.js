@@ -522,7 +522,5 @@ describe("DLT", async function () {
         )
       ).to.be.revertedWith("DLTReceiverRevertable");
     });
-
-    it("sync flag 12:08", async function () {});
   });
 });
