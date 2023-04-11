@@ -32,7 +32,8 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
       - name: Authenticate with NPM
-          run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_WORKFLOW_TOKEN }}" >> ~/.npmrc
-      - run: npm publish
+        run: echo "//registry.npmjs.org/:_authToken=\${{ secrets.NPM_WORKFLOW_TOKEN }}" >> ~/.npmrc
+      - name: Publish to NPM
+        run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
