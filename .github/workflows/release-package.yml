@@ -1,6 +1,9 @@
 name: dual layer token
 
 on:
+  push:
+    branches:
+      - dev
   release:
     types: [created]
 
