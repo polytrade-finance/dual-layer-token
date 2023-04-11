@@ -522,5 +522,7 @@ describe("DLT", async function () {
         )
       ).to.be.revertedWith("DLTReceiverRevertable");
     });
+
+    it("sync flag", async function () {});
   });
 });
