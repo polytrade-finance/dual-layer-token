@@ -523,6 +523,6 @@ describe("DLT", async function () {
       ).to.be.revertedWith("DLTReceiverRevertable");
     });
 
-    it("sync flag 11:58", async function () {});
+    it("sync flag 12:08", async function () {});
   });
 });
