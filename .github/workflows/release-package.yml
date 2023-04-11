@@ -31,9 +31,7 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
       - name: Login to NPM registry
-        run: npm login --registry=https://registry.npmjs.org/ --scope=@my-org --always-auth --auth-token=${{ secrets.NPM_WORKFLOW_TOKEN }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_WORKFLOW_TOKEN }}
+        run: npm login --registry=https://registry.npmjs.org/ --scope=@polytrade.finance --always-auth --auth-token=${{ secrets.NPM_WORKFLOW_TOKEN }}
       - run: npm ci
       - name: Authenticate with NPM
         run: echo "//registry.npmjs.org/:_authToken=\${{ secrets.NPM_WORKFLOW_TOKEN }}" >> ~/.npmrc
