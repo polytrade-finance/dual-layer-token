@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { IDLT } from "./interface/IDLT.sol";
 import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 
 contract DLT is IDLT {
-    using Address for address;
-
     string private _name;
     string private _symbol;
 
@@ -21,7 +18,8 @@ contract DLT is IDLT {
     mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
 
     // Balances
-    mapping(uint256 => mapping(address => Balance)) private _balances;
+    mapping(uint256 => mapping(address => mapping(uint256 => uint256)))
+        private _balances;
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
@@ -94,7 +92,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+        _transferFrom(sender, recipient, mainId, subId, amount);
         return true;
     }
 
@@ -102,19 +100,12 @@ contract DLT is IDLT {
         return _totalMainIds;
     }
 
-    function mainBalanceOf(
-        address account,
-        uint256 mainId
-    ) public view returns (uint256) {
-        return _balances[mainId][account].mainBalance;
-    }
-
     function subBalanceOf(
         address account,
         uint256 mainId,
         uint256 subId
     ) public view returns (uint256) {
-        return _balances[mainId][account].subBalances[subId];
+        return _balances[mainId][account][subId];
     }
 
     function allowance(
@@ -248,6 +239,22 @@ contract DLT is IDLT {
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
     }
 
+    function _transferFrom(
+        address sender,
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual {
+        address spender = msg.sender;
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
+        _transfer(sender, recipient, mainId, subId, amount);
+    }
+
     function _spendAllowance(
         address owner,
         address spender,
@@ -333,20 +340,15 @@ contract DLT is IDLT {
 
         _beforeTokenTransfer(sender, recipient, mainId, subId, amount, "");
 
-        Balance storage senderBalance = _balances[mainId][sender];
-        Balance storage recipientBalance = _balances[mainId][recipient];
-
         require(
-            senderBalance.subBalances[subId] >= amount,
+            _balances[mainId][sender][subId] >= amount,
             "DLT: insufficient balance for transfer"
         );
         unchecked {
-            senderBalance.mainBalance -= amount;
-            senderBalance.subBalances[subId] -= amount;
+            _balances[mainId][sender][subId] -= amount;
         }
 
-        recipientBalance.mainBalance += amount;
-        recipientBalance.subBalances[subId] += amount;
+        _balances[mainId][recipient][subId] += amount;
 
         emit Transfer(sender, recipient, mainId, subId, amount);
 
@@ -378,14 +380,10 @@ contract DLT is IDLT {
             ++_totalSubIds[mainId];
         }
 
-        unchecked {
-            _totalSupply += amount;
-            _mainTotalSupply[mainId] += amount;
-            _subTotalSupply[mainId][subId] += amount;
-
-            _balances[mainId][account].mainBalance += amount;
-            _balances[mainId][account].subBalances[subId] += amount;
-        }
+        _totalSupply += amount;
+        _mainTotalSupply[mainId] += amount;
+        _subTotalSupply[mainId][subId] += amount;
+        _balances[mainId][account][subId] += amount;
 
         emit Transfer(address(0), account, mainId, subId, amount);
 
@@ -412,7 +410,7 @@ contract DLT is IDLT {
         require(account != address(0), "DLT: burn from the zero address");
         require(amount != 0, "DLT: burn zero amount");
 
-        uint256 fromBalanceSub = _balances[mainId][account].subBalances[subId];
+        uint256 fromBalanceSub = _balances[mainId][account][subId];
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
 
         _beforeTokenTransfer(account, address(0), mainId, subId, amount, "");
@@ -421,9 +419,7 @@ contract DLT is IDLT {
             _totalSupply -= amount;
             _mainTotalSupply[mainId] -= amount;
             _subTotalSupply[mainId][subId] -= amount;
-
-            _balances[mainId][account].mainBalance -= amount;
-            _balances[mainId][account].subBalances[subId] -= amount;
+            _balances[mainId][account][subId] -= amount;
 
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
         }
@@ -519,7 +515,7 @@ contract DLT is IDLT {
         uint256 amount,
         bytes memory data
     ) private returns (bool) {
-        if (recipient.isContract()) {
+        if (recipient.code.length > 0) {
             try
                 IDLTReceiver(recipient).onDLTReceived(
                     msg.sender,

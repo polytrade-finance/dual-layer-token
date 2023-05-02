@@ -2,11 +2,6 @@
 pragma solidity 0.8.17;
 
 interface IDLT {
-    struct Balance {
-        uint256 mainBalance;
-        mapping(uint256 => uint256) subBalances;
-    }
-
     /**
      * @dev Emitted when `subId` token is transferred from `sender` to `recipient`.
      */
@@ -111,14 +106,6 @@ interface IDLT {
      * @dev Returns Total number of unique subId values that have been  given for a mainId.
      */
     function totalSubIds(uint256 mainId) external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account` in mainId.
-     */
-    function mainBalanceOf(
-        address account,
-        uint256 mainId
-    ) external view returns (uint256);
 
     /**
      * @dev Returns the amount of tokens owned by `account` in subId.
