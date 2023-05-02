@@ -15,6 +15,13 @@ module.exports = {
       },
     },
   },
+  contractSizer: {
+    alphaSort: true,
+    disambiguatePaths: false,
+    runOnCompile: true,
+    strict: true,
+    only: [":DLT$"],
+  },
   networks: {
     mumbai: {
       url: `${ARCHIVAL_RPC}`,
