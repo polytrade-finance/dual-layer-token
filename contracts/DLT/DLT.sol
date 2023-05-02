@@ -22,7 +22,8 @@ contract DLT is Context, IDLT {
     mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
 
     // Balances
-    mapping(uint256 => mapping(address => Balance)) private _balances;
+    mapping(uint256 => mapping(address => mapping(uint256 => uint256)))
+        private _balances;
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
@@ -119,7 +120,7 @@ contract DLT is Context, IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
+        _transferFrom(sender, recipient, mainId, subId, amount);
         return true;
     }
 
@@ -127,19 +128,12 @@ contract DLT is Context, IDLT {
         return _totalMainIds;
     }
 
-    function mainBalanceOf(
-        address account,
-        uint256 mainId
-    ) public view returns (uint256) {
-        return _balances[mainId][account].mainBalance;
-    }
-
     function subBalanceOf(
         address account,
         uint256 mainId,
         uint256 subId
     ) public view returns (uint256) {
-        return _balances[mainId][account].subBalances[subId];
+        return _balances[mainId][account][subId];
     }
 
     /**
@@ -300,67 +294,6 @@ contract DLT is Context, IDLT {
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
     }
 
-    /**
-     *
-     * Emits a {TransferBatch} event.
-     *
-     * Requirements:
-     *
-     * - If `to` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived} and return the
-     * acceptance magic value.
-     */
-    function _safeBatchTransferFrom(
-        address sender,
-        address recipient,
-        uint256[] memory mainIds,
-        uint256[] memory subIds,
-        uint256[] memory amounts,
-        bytes memory data
-    ) internal virtual {
-        require(
-            mainIds.length == subIds.length && mainIds.length == amounts.length,
-            "DLT: mainIds, subIds and amounts length mismatch"
-        );
-        require(to != address(0), "DLT: transfer to the zero address");
-
-        address operator = _msgSender();
-
-        for (uint256 i = 0; i < mainIds.length; ++i) {
-            uint256 id = ids[i];
-            uint256 amount = amounts[i];
-            uint256 fromBalance = _balances[id][from];
-            require(
-                fromBalance >= amount,
-                "DLT: insufficient balance for transfer"
-            );
-            unchecked {
-                _balances[id][from] = fromBalance - amount;
-            }
-            _balances[id][to] += amount;
-        }
-
-        emit TransferBatch(
-            operator,
-            sender,
-            recipient,
-            mainIds,
-            subIds,
-            amounts
-        );
-
-        require(
-            _checkOnDLTBatchReceived(
-                sender,
-                recipient,
-                mainIds,
-                subIds,
-                amounts,
-                data
-            ),
-            "DLT: transfer to non DLTReceiver implementer"
-        );
-    }
-
     function _spendAllowance(
         address owner,
         address spender,
@@ -446,20 +379,15 @@ contract DLT is Context, IDLT {
 
         _beforeTokenTransfer(sender, recipient, mainId, subId, amount, "");
 
-        Balance storage senderBalance = _balances[mainId][sender];
-        Balance storage recipientBalance = _balances[mainId][recipient];
-
         require(
-            senderBalance.subBalances[subId] >= amount,
+            _balances[mainId][sender][subId] >= amount,
             "DLT: insufficient balance for transfer"
         );
         unchecked {
-            senderBalance.mainBalance -= amount;
-            senderBalance.subBalances[subId] -= amount;
+            _balances[mainId][sender][subId] -= amount;
         }
 
-        recipientBalance.mainBalance += amount;
-        recipientBalance.subBalances[subId] += amount;
+        _balances[mainId][recipient][subId] += amount;
 
         emit Transfer(sender, recipient, mainId, subId, amount);
 
@@ -491,14 +419,10 @@ contract DLT is Context, IDLT {
             ++_totalSubIds[mainId];
         }
 
-        unchecked {
-            _totalSupply += amount;
-            _mainTotalSupply[mainId] += amount;
-            _subTotalSupply[mainId][subId] += amount;
-
-            _balances[mainId][account].mainBalance += amount;
-            _balances[mainId][account].subBalances[subId] += amount;
-        }
+        _totalSupply += amount;
+        _mainTotalSupply[mainId] += amount;
+        _subTotalSupply[mainId][subId] += amount;
+        _balances[mainId][account][subId] += amount;
 
         emit Transfer(address(0), account, mainId, subId, amount);
 
@@ -525,7 +449,7 @@ contract DLT is Context, IDLT {
         require(account != address(0), "DLT: burn from the zero address");
         require(amount != 0, "DLT: burn zero amount");
 
-        uint256 fromBalanceSub = _balances[mainId][account].subBalances[subId];
+        uint256 fromBalanceSub = _balances[mainId][account][subId];
         require(fromBalanceSub >= amount, "DLT: insufficient balance");
 
         _beforeTokenTransfer(account, address(0), mainId, subId, amount, "");
@@ -534,9 +458,7 @@ contract DLT is Context, IDLT {
             _totalSupply -= amount;
             _mainTotalSupply[mainId] -= amount;
             _subTotalSupply[mainId][subId] -= amount;
-
-            _balances[mainId][account].mainBalance -= amount;
-            _balances[mainId][account].subBalances[subId] -= amount;
+            _balances[mainId][account][subId] -= amount;
 
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
         }
@@ -632,7 +554,7 @@ contract DLT is Context, IDLT {
         uint256 amount,
         bytes memory data
     ) private returns (bool) {
-        if (recipient.isContract()) {
+        if (recipient.code.length > 0) {
             try
                 IDLTReceiver(recipient).onDLTReceived(
                     _msgSender(),

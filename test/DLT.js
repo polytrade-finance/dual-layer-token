@@ -82,10 +82,6 @@ describe("DLT", async function () {
       expect(await DLT.totalMainIds()).to.equal(1);
       expect(await DLT.totalSubIds(1)).to.equal(1);
 
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("10000")
-      );
-
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
         ethers.utils.parseEther("10000")
       );
@@ -102,8 +98,6 @@ describe("DLT", async function () {
 
       expect(await DLT.totalMainIds()).to.equal(0);
       expect(await DLT.totalSubIds(1)).to.equal(0);
-
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(0);
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(0);
     });
@@ -123,10 +117,6 @@ describe("DLT", async function () {
 
       expect(await DLT.totalMainIds()).to.equal(1);
       expect(await DLT.totalSubIds(1)).to.equal(1);
-
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("5000")
-      );
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
         ethers.utils.parseEther("5000")
@@ -168,16 +158,8 @@ describe("DLT", async function () {
         ethers.utils.parseEther("4000")
       );
 
-      expect(await DLT.mainBalanceOf(user1.address, 1)).to.equal(
-        ethers.utils.parseEther("6000")
-      );
-
       expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
         ethers.utils.parseEther("6000")
-      );
-
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("4000")
       );
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
@@ -223,16 +205,8 @@ describe("DLT", async function () {
         )
       ).to.not.reverted;
 
-      expect(await DLT.mainBalanceOf(user1.address, 1)).to.equal(
-        ethers.utils.parseEther("7000")
-      );
-
       expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
         ethers.utils.parseEther("7000")
-      );
-
-      expect(await DLT.mainBalanceOf(owner.address, 1)).to.equal(
-        ethers.utils.parseEther("3000")
       );
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
