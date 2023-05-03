@@ -327,7 +327,6 @@ contract DLT is IDLT {
         for (uint256 i = 0; i < mainIds.length; ++i) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
-
             uint256 fromBalance = _balances[id][from];
             require(
                 fromBalance >= amount,
