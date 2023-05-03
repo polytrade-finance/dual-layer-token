@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+import { Context } from "@openzeppelin/contracts/utils/Context.sol";
 import { IDLT } from "./interface/IDLT.sol";
 import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 
-contract DLT is IDLT {
+contract DLT is Context, IDLT {
+    using Address for address;
+
     string private _name;
     string private _symbol;
 
@@ -37,7 +41,7 @@ contract DLT is IDLT {
         uint256 subId,
         uint256 amount
     ) public returns (bool) {
-        address owner = msg.sender;
+        address owner = _msgSender();
         require(spender != owner, "DLT: approval to current owner");
         _approve(owner, spender, mainId, subId, amount);
         return true;
@@ -47,7 +51,7 @@ contract DLT is IDLT {
      * @dev See {DLT-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public {
-        _setApprovalForAll(msg.sender, operator, approved);
+        _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
@@ -230,7 +234,7 @@ contract DLT is IDLT {
         uint256 amount,
         bytes memory data
     ) internal virtual {
-        address spender = msg.sender;
+        address spender = _msgSender();
 
         if (!_isApprovedOrOwner(sender, spender)) {
             _spendAllowance(sender, spender, mainId, subId, amount);
@@ -518,7 +522,7 @@ contract DLT is IDLT {
         if (recipient.code.length > 0) {
             try
                 IDLTReceiver(recipient).onDLTReceived(
-                    msg.sender,
+                    _msgSender(),
                     sender,
                     mainId,
                     subId,
