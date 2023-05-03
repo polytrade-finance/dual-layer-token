@@ -96,7 +96,7 @@ contract DLT is Context, IDLT {
         uint256[] calldata values,
         bytes calldata data
     ) public returns (bool) {
-        address spender = msg.sender;
+        address spender = _msgSender();
 
         if (!_isApprovedOrOwner(sender, spender)) {
             _spendAllowance(sender, spender, mainId, subId, amount);
@@ -670,7 +670,7 @@ contract DLT is Context, IDLT {
         if (recipient.isContract()) {
             try
                 IDLTReceiver(recipient).onDLTBatchReceived(
-                    msg.sender,
+                    _msgSender(),
                     sender,
                     mainIds,
                     subIds,
