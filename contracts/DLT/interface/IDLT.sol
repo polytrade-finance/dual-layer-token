@@ -130,6 +130,18 @@ interface IDLT {
     ) external view returns (uint256);
 
     /**
+     *
+     * Requirements:
+     *
+     * - `accounts` and `mainIds` and `subIds` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory mainIds,
+        uint256[] memory subIds
+    ) external view returns (uint256[] memory);
+
+    /**
      * @dev Returns the remaining number of tokens that `spender` will be
      * allowed to spend on behalf of `owner` through {transferFrom}. This is
      * zero by default.
