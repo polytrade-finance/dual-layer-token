@@ -33,7 +33,5 @@ interface IDLTReceiver {
         uint256[] memory,
         uint256[] memory,
         bytes calldata data
-    ) public virtual override returns (bytes4) {
-        return this.onDLTBatchReceived.selector;
-    }
+    ) external returns (bytes4);
 }

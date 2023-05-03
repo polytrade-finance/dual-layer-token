@@ -91,7 +91,7 @@ contract DLT is Context, IDLT {
         address recipient,
         uint256[] calldata mainIds,
         uint256[] calldata subIds,
-        uint256[] calldata values,
+        uint256[] calldata amounts,
         bytes calldata data
     ) public returns (bool) {
         address spender = _msgSender();
@@ -313,22 +313,24 @@ contract DLT is Context, IDLT {
             mainIds.length == subIds.length && mainIds.length == amounts.length,
             "DLT: mainIds, subIds and amounts length mismatch"
         );
-        require(to != address(0), "DLT: transfer to the zero address");
+        require(recipient != address(0), "DLT: transfer to the zero address");
 
         address operator = _msgSender();
 
         for (uint256 i = 0; i < mainIds.length; ++i) {
-            uint256 id = ids[i];
+            uint256 mainId = mainIds[i];
+            uint256 subId = subIds[i];
             uint256 amount = amounts[i];
-            uint256 fromBalance = _balances[id][from];
+            uint256 senderBalance = _balances[mainId][sender][subId];
+
             require(
-                fromBalance >= amount,
+                senderBalance >= amount,
                 "DLT: insufficient balance for transfer"
             );
             unchecked {
-                _balances[id][from] = fromBalance - amount;
+                _balances[mainId][sender][subId] = senderBalance - amount;
             }
-            _balances[id][to] += amount;
+            _balances[mainId][recipient][subId] += amount;
         }
 
         emit TransferBatch(
@@ -339,7 +341,6 @@ contract DLT is Context, IDLT {
             subIds,
             amounts
         );
-
         require(
             _checkOnDLTBatchReceived(
                 sender,
@@ -661,10 +662,10 @@ contract DLT is Context, IDLT {
         address recipient,
         uint256[] memory mainIds,
         uint256[] memory subIds,
-        uint256[] amounts,
+        uint256[] memory amounts,
         bytes memory data
     ) private returns (bool) {
-        if (recipient.isContract()) {
+        if (recipient.code.length > 0) {
             try
                 IDLTReceiver(recipient).onDLTBatchReceived(
                     _msgSender(),
