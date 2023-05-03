@@ -87,6 +87,30 @@ contract DLT is IDLT {
         return true;
     }
 
+    function safeBatchTransferFrom(
+        address from,
+        address to,
+        uint256[] calldata mainIds,
+        uint256[] calldata subIds,
+        uint256[] calldata values,
+        bytes calldata data
+    ) public returns (bool) {
+        address spender = msg.sender;
+
+        if (!_isApprovedOrOwner(sender, spender)) {
+            _spendAllowance(sender, spender, mainId, subId, amount);
+        }
+
+        _safeBatchTransferFrom(
+            sender,
+            recipient,
+            mainIds,
+            subIds,
+            amounts,
+            data
+        );
+    }
+
     function transferFrom(
         address sender,
         address recipient,
@@ -273,6 +297,68 @@ contract DLT is IDLT {
         }
 
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
+    }
+
+    /**
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - If `to` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived} and return the
+     * acceptance magic value.
+     */
+    function _safeBatchTransferFrom(
+        address sender,
+        address recipient,
+        uint256[] memory mainIds,
+        uint256[] memory subIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        require(
+            mainIds.length == subIds.length && mainIds.length == amounts.length,
+            "DLT: mainIds, subIds and amounts length mismatch"
+        );
+        require(to != address(0), "DLT: transfer to the zero address");
+
+        address operator = _msgSender();
+
+        for (uint256 i = 0; i < mainIds.length; ++i) {
+            uint256 id = ids[i];
+            uint256 amount = amounts[i];
+
+            uint256 fromBalance = _balances[id][from];
+            require(
+                fromBalance >= amount,
+                "DLT: insufficient balance for transfer"
+            );
+            unchecked {
+                _balances[id][from] = fromBalance - amount;
+            }
+            _balances[id][to] += amount;
+        }
+
+        emit TransferBatch(
+            operator,
+            sender,
+            recipient,
+            mainIds,
+            subIds,
+            amounts
+        );
+
+        require(
+            _checkOnDLTBatchReceived(
+                sender,
+                recipient,
+                mainIds,
+                subIds,
+                amounts,
+                data
+            ),
+            "DLT: transfer to non DLTReceiver implementer"
+        );
     }
 
     function _spendAllowance(
@@ -558,6 +644,41 @@ contract DLT is IDLT {
                 )
             returns (bytes4 retval) {
                 return retval == IDLTReceiver.onDLTReceived.selector;
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert("DLT: transfer to non DLTReceiver implementer");
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
+            }
+        } else {
+            return true;
+        }
+    }
+
+    function _checkOnDLTBatchReceived(
+        address sender,
+        address recipient,
+        uint256[] memory mainIds,
+        uint256[] memory subIds,
+        uint256[] amounts,
+        bytes memory data
+    ) private returns (bool) {
+        if (recipient.isContract()) {
+            try
+                IDLTReceiver(recipient).onDLTBatchReceived(
+                    msg.sender,
+                    sender,
+                    mainIds,
+                    subIds,
+                    amounts,
+                    data
+                )
+            returns (bytes4 retval) {
+                return retval == IDLTReceiver.onDLTBatchReceived.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
                     revert("DLT: transfer to non DLTReceiver implementer");
