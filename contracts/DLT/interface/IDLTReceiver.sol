@@ -25,4 +25,15 @@ interface IDLTReceiver {
         uint256 amount,
         bytes calldata data
     ) external returns (bytes4);
+
+    function onDLTBatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        uint256[] memory,
+        bytes calldata data
+    ) public virtual override returns (bytes4) {
+        return this.onDLTBatchReceived.selector;
+    }
 }
