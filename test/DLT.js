@@ -47,6 +47,25 @@ describe("DLT", async function () {
   });
 
   describe("Should reflect balances", async function () {
+    it("Should return batch balances after minting", async function () {
+      await DLT.mint(owner.address, 2, 1, ethers.utils.parseEther("10000"));
+
+      expect(
+        await DLT.balanceOfBatch([owner.address, owner.address], [1, 2], [1, 1])
+      ).to.deep.equal([
+        await DLT.subBalanceOf(owner.address, 1, 1),
+        await DLT.subBalanceOf(owner.address, 2, 1),
+      ]);
+    });
+
+    it("Should revert batch balances because of array parity after minting", async function () {
+      await DLT.mint(owner.address, 2, 1, ethers.utils.parseEther("10000"));
+
+      await expect(
+        DLT.balanceOfBatch([owner.address], [1, 2], [1, 1])
+      ).to.be.revertedWith("DLT: accounts, mainIds and ids length mismatch");
+    });
+
     it("Should increase balances after minting", async function () {
       expect(await DLT.totalSupply()).to.equal(
         ethers.utils.parseEther("10000")

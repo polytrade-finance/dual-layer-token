@@ -117,6 +117,33 @@ contract DLT is IDLT {
         return _balances[mainId][account].subBalances[subId];
     }
 
+    /**
+     * @dev See {IDLT-balanceOfBatch}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `mainIds` and `subIds` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory mainIds,
+        uint256[] memory subIds
+    ) public view returns (uint256[] memory) {
+        require(
+            accounts.length == mainIds.length &&
+                accounts.length == subIds.length,
+            "DLT: accounts, mainIds and ids length mismatch"
+        );
+
+        uint256[] memory batchBalances = new uint256[](accounts.length);
+
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            batchBalances[i] = subBalanceOf(accounts[i], mainIds[i], subIds[i]);
+        }
+
+        return batchBalances;
+    }
+
     function allowance(
         address owner,
         address spender,
