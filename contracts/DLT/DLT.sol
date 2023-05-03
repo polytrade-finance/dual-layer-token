@@ -6,7 +6,6 @@ import { IDLT } from "./interface/IDLT.sol";
 import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
 
 contract DLT is Context, IDLT {
-
     string private _name;
     string private _symbol;
 
