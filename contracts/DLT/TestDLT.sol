@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import { DLT } from "./DLT.sol";
-import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
+import { IDLTReceiver } from "./interfaces/IDLTReceiver.sol";
 
 contract TestDLT is DLT {
     constructor(string memory name, string memory symbol) DLT(name, symbol) {

@@ -2,21 +2,12 @@
 pragma solidity 0.8.17;
 
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
-import { IDLT } from "./interface/IDLT.sol";
-import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
+import { IDLT } from "./interfaces/IDLT.sol";
+import { IDLTReceiver } from "./interfaces/IDLTReceiver.sol";
 
 contract DLT is Context, IDLT {
     string private _name;
     string private _symbol;
-
-    // Count
-    uint256 private _totalMainIds;
-    mapping(uint256 => uint256) private _totalSubIds;
-
-    // Supply
-    uint256 private _totalSupply;
-    mapping(uint256 => uint256) private _mainTotalSupply;
-    mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
 
     // Balances
     mapping(uint256 => mapping(address => mapping(uint256 => uint256)))
@@ -97,10 +88,6 @@ contract DLT is Context, IDLT {
         return true;
     }
 
-    function totalMainIds() public view returns (uint256) {
-        return _totalMainIds;
-    }
-
     function subBalanceOf(
         address account,
         uint256 mainId,
@@ -116,25 +103,6 @@ contract DLT is Context, IDLT {
         uint256 subId
     ) public view returns (uint256) {
         return _allowance(owner, spender, mainId, subId);
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    function mainTotalSupply(uint256 mainId) public view returns (uint256) {
-        return _mainTotalSupply[mainId];
-    }
-
-    function subTotalSupply(
-        uint256 mainId,
-        uint256 subId
-    ) public view returns (uint256) {
-        return _subTotalSupply[mainId][subId];
-    }
-
-    function totalSubIds(uint256 mainId) public view returns (uint256) {
-        return _totalSubIds[mainId];
     }
 
     function isApprovedForAll(
@@ -376,14 +344,6 @@ contract DLT is Context, IDLT {
 
         _beforeTokenTransfer(address(0), account, mainId, subId, amount, "");
 
-        if (_subTotalSupply[mainId][subId] == 0) {
-            ++_totalMainIds;
-            ++_totalSubIds[mainId];
-        }
-
-        _totalSupply += amount;
-        _mainTotalSupply[mainId] += amount;
-        _subTotalSupply[mainId][subId] += amount;
         _balances[mainId][account][subId] += amount;
 
         emit Transfer(address(0), account, mainId, subId, amount);
@@ -417,17 +377,9 @@ contract DLT is Context, IDLT {
         _beforeTokenTransfer(account, address(0), mainId, subId, amount, "");
 
         unchecked {
-            _totalSupply -= amount;
-            _mainTotalSupply[mainId] -= amount;
-            _subTotalSupply[mainId][subId] -= amount;
             _balances[mainId][account][subId] -= amount;
 
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
-        }
-
-        if (_subTotalSupply[mainId][subId] == 0) {
-            --_totalMainIds;
-            --_totalSubIds[mainId];
         }
 
         emit Transfer(account, address(0), mainId, subId, amount);
