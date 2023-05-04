@@ -11,7 +11,7 @@ contract DLT is Context, IDLT {
 
     // Balances
     mapping(uint256 => mapping(address => mapping(uint256 => uint256)))
-        private _balances;
+        internal _balances;
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
