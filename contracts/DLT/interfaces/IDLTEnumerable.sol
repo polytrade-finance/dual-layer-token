@@ -31,18 +31,15 @@ interface IDLTEnumerable is IDLT {
     ) external view returns (uint256);
 
     /**
-     * @dev Returns the array of all owner sub ids.
+     * @dev Returns array of all sub ids for a main id
      */
-    function ownedSubIds(
-        uint256 mainId,
-        address owner
-    ) external view returns (uint256[] memory);
+    function subIds(uint256 mainId) external view returns (uint256[] memory);
 
     /**
-     * @dev Returns the array of all owner sub ids.
+     * @dev Returns total sub id balance of owner for each main id
      */
-    function ownedSubIdBalance(
-        uint256 mainId,
-        address owner
+    function totalSubIdBalance(
+        address owner,
+        uint256 mainId
     ) external view returns (uint256);
 }
