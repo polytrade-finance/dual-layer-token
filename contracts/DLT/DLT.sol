@@ -28,7 +28,7 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual override returns (bool) {
         address owner = _msgSender();
         require(spender != owner, "DLT: approval to current owner");
         _approve(owner, spender, mainId, subId, amount);
@@ -38,7 +38,7 @@ contract DLT is Context, IDLT {
     /**
      * @dev See {DLT-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public {
+    function setApprovalForAll(address operator, bool approved) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
@@ -60,7 +60,7 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
         return true;
     }
@@ -72,7 +72,7 @@ contract DLT is Context, IDLT {
         uint256 subId,
         uint256 amount,
         bytes memory data
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _safeTransferFrom(sender, recipient, mainId, subId, amount, data);
         return true;
     }
@@ -107,7 +107,7 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _transferFrom(sender, recipient, mainId, subId, amount);
         return true;
     }
@@ -116,7 +116,7 @@ contract DLT is Context, IDLT {
         address account,
         uint256 mainId,
         uint256 subId
-    ) public view returns (uint256) {
+    ) public view virtual override returns (uint256) {
         return _balances[mainId][account][subId];
     }
 
@@ -152,14 +152,14 @@ contract DLT is Context, IDLT {
         address spender,
         uint256 mainId,
         uint256 subId
-    ) public view returns (uint256) {
+    ) public view virtual override returns (uint256) {
         return _allowance(owner, spender, mainId, subId);
     }
 
     function isApprovedForAll(
         address owner,
         address operator
-    ) public view returns (bool) {
+    ) public view virtual override returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
@@ -461,6 +461,7 @@ contract DLT is Context, IDLT {
         emit Transfer(address(0), account, mainId, subId, amount);
 
         _afterTokenTransfer(address(0), account, mainId, subId, amount, "");
+
     }
 
     /**
@@ -550,7 +551,7 @@ contract DLT is Context, IDLT {
         address spender,
         uint256 mainId,
         uint256 subId
-    ) internal view returns (uint256) {
+    ) internal view virtual returns (uint256) {
         return _allowances[owner][spender][mainId][subId];
     }
 
