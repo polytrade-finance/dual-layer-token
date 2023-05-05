@@ -38,7 +38,10 @@ contract DLT is Context, IDLT {
     /**
      * @dev See {DLT-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(
+        address operator,
+        bool approved
+    ) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
@@ -349,7 +352,6 @@ contract DLT is Context, IDLT {
         emit Transfer(address(0), account, mainId, subId, amount);
 
         _afterTokenTransfer(address(0), account, mainId, subId, amount, "");
-
     }
 
     /**
