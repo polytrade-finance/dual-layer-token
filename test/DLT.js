@@ -48,11 +48,11 @@ describe("DLT", async function () {
 
   describe("Should reflect balances", async function () {
     it("Should increase balances after minting", async function () {
-      expect(await DLT.mainTotalSupply(1)).to.equal(
+      expect(await DLT.totalMainSupply(1)).to.equal(
         ethers.utils.parseEther("10000")
       );
 
-      expect(await DLT.subTotalSupply(1, 1)).to.equal(
+      expect(await DLT.totalSubSupply(1, 1)).to.equal(
         ethers.utils.parseEther("10000")
       );
 
@@ -60,7 +60,7 @@ describe("DLT", async function () {
 
       expect(await DLT.totalSubIds(1)).to.equal(1);
 
-      expect(await DLT.totalSubIdBalance(owner.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(owner.address, 1)).to.equal(
         ethers.utils.parseEther("10000")
       );
 
@@ -73,13 +73,13 @@ describe("DLT", async function () {
       await DLT.mint(owner.address, 1, 2, ethers.utils.parseEther("10000"));
       await DLT.mint(owner.address, 1, 3, ethers.utils.parseEther("10000"));
 
-      const beforeBurn = await DLT.subIds(1);
+      const beforeBurn = await DLT.getSubIds(1);
 
       expect(beforeBurn.length).to.equal(3);
 
       await DLT.burn(owner.address, 1, 2, ethers.utils.parseEther("10000"));
 
-      const afterBurn = await DLT.subIds(1);
+      const afterBurn = await DLT.getSubIds(1);
       const array = [];
       for (let i = 0; i < afterBurn.length; i++) {
         array.push(afterBurn[i].toNumber());
@@ -93,14 +93,14 @@ describe("DLT", async function () {
     it("Should decrease balances after burning all balances", async function () {
       await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("10000"));
 
-      expect(await DLT.mainTotalSupply(1)).to.equal(0);
+      expect(await DLT.totalMainSupply(1)).to.equal(0);
 
-      expect(await DLT.subTotalSupply(1, 1)).to.equal(0);
+      expect(await DLT.totalSubSupply(1, 1)).to.equal(0);
 
       expect(await DLT.totalMainIds()).to.equal(0);
       expect(await DLT.totalSubIds(1)).to.equal(0);
 
-      expect(await DLT.totalSubIdBalance(owner.address, 1)).to.equal(0);
+      expect(await DLT.subIdBalanceOf(owner.address, 1)).to.equal(0);
 
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(0);
     });
@@ -108,7 +108,7 @@ describe("DLT", async function () {
     it("Should remove subId from subIds after burning", async function () {
       await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("10000"));
 
-      const result = await DLT.subIds(1);
+      const result = await DLT.getSubIds(1);
 
       expect(result.length).to.equal(0);
     });
@@ -116,18 +116,18 @@ describe("DLT", async function () {
     it("Should decrease balances after burning half of balances", async function () {
       await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("5000"));
 
-      expect(await DLT.mainTotalSupply(1)).to.equal(
+      expect(await DLT.totalMainSupply(1)).to.equal(
         ethers.utils.parseEther("5000")
       );
 
-      expect(await DLT.subTotalSupply(1, 1)).to.equal(
+      expect(await DLT.totalSubSupply(1, 1)).to.equal(
         ethers.utils.parseEther("5000")
       );
 
       expect(await DLT.totalMainIds()).to.equal(1);
       expect(await DLT.totalSubIds(1)).to.equal(1);
 
-      expect(await DLT.totalSubIdBalance(owner.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(owner.address, 1)).to.equal(
         ethers.utils.parseEther("5000")
       );
 
@@ -139,7 +139,7 @@ describe("DLT", async function () {
     it("Should not remove subId from subIds after remaining balance", async function () {
       await DLT.burn(owner.address, 1, 1, ethers.utils.parseEther("9999"));
 
-      const result = await DLT.subIds(1);
+      const result = await DLT.getSubIds(1);
       const array = [];
 
       for (let i = 0; i < result.length; i++) {
@@ -184,7 +184,7 @@ describe("DLT", async function () {
         ethers.utils.parseEther("4000")
       );
 
-      expect(await DLT.totalSubIdBalance(user1.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(user1.address, 1)).to.equal(
         ethers.utils.parseEther("6000")
       );
 
@@ -192,7 +192,7 @@ describe("DLT", async function () {
         ethers.utils.parseEther("6000")
       );
 
-      expect(await DLT.totalSubIdBalance(owner.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(owner.address, 1)).to.equal(
         ethers.utils.parseEther("4000")
       );
 
@@ -239,7 +239,7 @@ describe("DLT", async function () {
         )
       ).to.not.reverted;
 
-      expect(await DLT.totalSubIdBalance(user1.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(user1.address, 1)).to.equal(
         ethers.utils.parseEther("7000")
       );
 
@@ -247,7 +247,7 @@ describe("DLT", async function () {
         ethers.utils.parseEther("7000")
       );
 
-      expect(await DLT.totalSubIdBalance(owner.address, 1)).to.equal(
+      expect(await DLT.subIdBalanceOf(owner.address, 1)).to.equal(
         ethers.utils.parseEther("3000")
       );
 
