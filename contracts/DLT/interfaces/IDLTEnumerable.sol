@@ -20,12 +20,12 @@ interface IDLTEnumerable is IDLT {
     /**
      * @dev Returns the total supply of main ids.
      */
-    function mainTotalSupply(uint256 mainId) external view returns (uint256);
+    function totalMainSupply(uint256 mainId) external view returns (uint256);
 
     /**
      * @dev Returns the total supply of sub ids for each main Ids.
      */
-    function subTotalSupply(
+    function totalSubSupply(
         uint256 mainId,
         uint256 subId
     ) external view returns (uint256);
@@ -33,12 +33,12 @@ interface IDLTEnumerable is IDLT {
     /**
      * @dev Returns array of all sub ids for a main id
      */
-    function subIds(uint256 mainId) external view returns (uint256[] memory);
+    function getSubIds(uint256 mainId) external view returns (uint256[] memory);
 
     /**
      * @dev Returns total sub id balance of owner for each main id
      */
-    function totalSubIdBalance(
+    function subIdBalanceOf(
         address owner,
         uint256 mainId
     ) external view returns (uint256);
