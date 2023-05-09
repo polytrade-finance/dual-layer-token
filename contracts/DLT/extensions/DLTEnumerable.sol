@@ -12,19 +12,19 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
     uint256 private _totalMainIds;
 
     /**
-     * @dev MappiArray of sub ids for each main ids
+     * @dev Mapping total sub ids for each main ids
      */
     mapping(uint256 => uint256) private _totalSubIds;
 
     /**
      * @dev Mapping from mainId to total supply of main ids
      */
-    mapping(uint256 => uint256) private _mainTotalSupply;
+    mapping(uint256 => uint256) private _totalMainSupply;
 
     /**
      * @dev Mapping from mainId to sub id to total supply of sub ids
      */
-    mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
+    mapping(uint256 => mapping(uint256 => uint256)) private _totalSubSupply;
 
     /**
      * @dev Mapping from main ids to array of sub ids
@@ -51,37 +51,37 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
     }
 
     /**
-     * @dev See {IDLTEnumerable-mainTotalSupply}.
+     * @dev See {IDLTEnumerable-totalMainSupply}.
      */
-    function mainTotalSupply(
+    function totalMainSupply(
         uint256 mainId
     ) public view virtual returns (uint256) {
-        return _mainTotalSupply[mainId];
+        return _totalMainSupply[mainId];
     }
 
     /**
-     * @dev See {IDLTEnumerable-subTotalSupply}.
+     * @dev See {IDLTEnumerable-totalSubSupply}.
      */
-    function subTotalSupply(
+    function totalSubSupply(
         uint256 mainId,
         uint256 subId
     ) public view virtual returns (uint256) {
-        return _subTotalSupply[mainId][subId];
+        return _totalSubSupply[mainId][subId];
     }
 
     /**
-     * @dev See {IDLTEnumerable-subIds}.
+     * @dev See {IDLTEnumerable-getSubIds}.
      */
-    function subIds(
+    function getSubIds(
         uint256 mainId
     ) public view virtual returns (uint256[] memory) {
         return _subIds[mainId];
     }
 
     /**
-     * @dev See {IDLTEnumerable-totalSubIdBalance}.
+     * @dev See {IDLTEnumerable-subIdBalanceOf}.
      */
-    function totalSubIdBalance(
+    function subIdBalanceOf(
         address owner,
         uint256 mainId
     ) public view virtual returns (uint256 totalBalance) {
@@ -105,17 +105,17 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
         uint256 subId,
         uint256 amount
     ) internal virtual override(DLT) {
-        if (_mainTotalSupply[mainId] == 0) {
+        if (_totalMainSupply[mainId] == 0) {
             ++_totalMainIds;
         }
-        if (_subTotalSupply[mainId][subId] == 0) {
+        if (_totalSubSupply[mainId][subId] == 0) {
             ++_totalSubIds[mainId];
             uint256[] storage array = _subIds[mainId];
             _subIdIndex[mainId][subId] = array.length;
             array.push(subId);
         }
-        _mainTotalSupply[mainId] += amount;
-        _subTotalSupply[mainId][subId] += amount;
+        _totalMainSupply[mainId] += amount;
+        _totalSubSupply[mainId][subId] += amount;
         super._mint(recipient, mainId, subId, amount);
     }
 
@@ -131,11 +131,11 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
     ) internal virtual override(DLT) {
         super._burn(recipient, mainId, subId, amount);
         unchecked {
-            _mainTotalSupply[mainId] -= amount;
-            _subTotalSupply[mainId][subId] -= amount;
-            // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
+            _totalMainSupply[mainId] -= amount;
+            _totalSubSupply[mainId][subId] -= amount;
+            // Overflow/Underflow not possible: amount <= fromBalanceMain <= totalSupply.
         }
-        if (_subTotalSupply[mainId][subId] == 0) {
+        if (_totalSubSupply[mainId][subId] == 0) {
             --_totalSubIds[mainId];
             uint256[] storage array = _subIds[mainId];
             uint256 subIdIndex = _subIdIndex[mainId][subId];
@@ -145,7 +145,7 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
             delete _subIdIndex[mainId][subId];
             array.pop();
         }
-        if (_mainTotalSupply[mainId] == 0) {
+        if (_totalMainSupply[mainId] == 0) {
             --_totalMainIds;
         }
     }
