@@ -133,7 +133,7 @@ abstract contract DLTEnumerable is DLT, IDLTEnumerable {
         unchecked {
             _totalMainSupply[mainId] -= amount;
             _totalSubSupply[mainId][subId] -= amount;
-            // Overflow/Underflow not possible: amount <= fromBalanceMain <= totalSupply.
+            // Overflow/Underflow not possible: amount <= fromBalanceMain <= totalSupply
         }
         if (_totalSubSupply[mainId][subId] == 0) {
             --_totalSubIds[mainId];
