@@ -298,7 +298,7 @@ contract DLT is Context, IDLT {
      *
      * Requirements:
      *
-     * - If `to` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived} and return the
+     * - If `recipient` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived} and return the
      * acceptance magic value.
      */
     function _safeBatchTransferFrom(
@@ -509,7 +509,7 @@ contract DLT is Context, IDLT {
      * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
      *
-     * Emits a {Transfer} event with `to` set to the zero address.
+     * Emits a {Transfer} event with `recipient` set to the zero address.
      *
      * Requirements:
      *
