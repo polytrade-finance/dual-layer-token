@@ -2,25 +2,16 @@
 pragma solidity 0.8.17;
 
 import { Context } from "@openzeppelin/contracts/utils/Context.sol";
-import { IDLT } from "./interface/IDLT.sol";
-import { IDLTReceiver } from "./interface/IDLTReceiver.sol";
+import { IDLT } from "./interfaces/IDLT.sol";
+import { IDLTReceiver } from "./interfaces/IDLTReceiver.sol";
 
 contract DLT is Context, IDLT {
     string private _name;
     string private _symbol;
 
-    // Count
-    uint256 private _totalMainIds;
-    mapping(uint256 => uint256) private _totalSubIds;
-
-    // Supply
-    uint256 private _totalSupply;
-    mapping(uint256 => uint256) private _mainTotalSupply;
-    mapping(uint256 => mapping(uint256 => uint256)) private _subTotalSupply;
-
     // Balances
     mapping(uint256 => mapping(address => mapping(uint256 => uint256)))
-        private _balances;
+        internal _balances;
 
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
@@ -37,7 +28,7 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual override returns (bool) {
         address owner = _msgSender();
         require(spender != owner, "DLT: approval to current owner");
         _approve(owner, spender, mainId, subId, amount);
@@ -47,7 +38,10 @@ contract DLT is Context, IDLT {
     /**
      * @dev See {DLT-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public {
+    function setApprovalForAll(
+        address operator,
+        bool approved
+    ) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
@@ -69,7 +63,7 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _safeTransferFrom(sender, recipient, mainId, subId, amount, "");
         return true;
     }
@@ -81,7 +75,7 @@ contract DLT is Context, IDLT {
         uint256 subId,
         uint256 amount,
         bytes memory data
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _safeTransferFrom(sender, recipient, mainId, subId, amount, data);
         return true;
     }
@@ -117,20 +111,16 @@ contract DLT is Context, IDLT {
         uint256 mainId,
         uint256 subId,
         uint256 amount
-    ) public returns (bool) {
+    ) public virtual returns (bool) {
         _transferFrom(sender, recipient, mainId, subId, amount);
         return true;
-    }
-
-    function totalMainIds() public view returns (uint256) {
-        return _totalMainIds;
     }
 
     function subBalanceOf(
         address account,
         uint256 mainId,
         uint256 subId
-    ) public view returns (uint256) {
+    ) public view virtual override returns (uint256) {
         return _balances[mainId][account][subId];
     }
 
@@ -166,33 +156,14 @@ contract DLT is Context, IDLT {
         address spender,
         uint256 mainId,
         uint256 subId
-    ) public view returns (uint256) {
+    ) public view virtual override returns (uint256) {
         return _allowance(owner, spender, mainId, subId);
-    }
-
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    function mainTotalSupply(uint256 mainId) public view returns (uint256) {
-        return _mainTotalSupply[mainId];
-    }
-
-    function subTotalSupply(
-        uint256 mainId,
-        uint256 subId
-    ) public view returns (uint256) {
-        return _subTotalSupply[mainId][subId];
-    }
-
-    function totalSubIds(uint256 mainId) public view returns (uint256) {
-        return _totalSubIds[mainId];
     }
 
     function isApprovedForAll(
         address owner,
         address operator
-    ) public view returns (bool) {
+    ) public view virtual override returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
@@ -490,14 +461,6 @@ contract DLT is Context, IDLT {
 
         _beforeTokenTransfer(address(0), account, mainId, subId, amount, "");
 
-        if (_subTotalSupply[mainId][subId] == 0) {
-            ++_totalMainIds;
-            ++_totalSubIds[mainId];
-        }
-
-        _totalSupply += amount;
-        _mainTotalSupply[mainId] += amount;
-        _subTotalSupply[mainId][subId] += amount;
         _balances[mainId][account][subId] += amount;
 
         emit Transfer(address(0), account, mainId, subId, amount);
@@ -531,17 +494,9 @@ contract DLT is Context, IDLT {
         _beforeTokenTransfer(account, address(0), mainId, subId, amount, "");
 
         unchecked {
-            _totalSupply -= amount;
-            _mainTotalSupply[mainId] -= amount;
-            _subTotalSupply[mainId][subId] -= amount;
             _balances[mainId][account][subId] -= amount;
 
             // Overflow not possible: amount <= fromBalanceMain <= totalSupply.
-        }
-
-        if (_subTotalSupply[mainId][subId] == 0) {
-            --_totalMainIds;
-            --_totalSubIds[mainId];
         }
 
         emit Transfer(account, address(0), mainId, subId, amount);
@@ -600,7 +555,7 @@ contract DLT is Context, IDLT {
         address spender,
         uint256 mainId,
         uint256 subId
-    ) internal view returns (uint256) {
+    ) internal view virtual returns (uint256) {
         return _allowances[owner][spender][mainId][subId];
     }
 
