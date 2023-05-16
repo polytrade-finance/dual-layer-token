@@ -5,11 +5,7 @@ module.exports = {
     mocha: true,
     node: true,
   },
-  extends: [
-    "standard",
-    "plugin:prettier/recommended",
-    "plugin:node/recommended",
-  ],
+  extends: ["plugin:prettier/recommended", "plugin:node/recommended"],
   parserOptions: {
     ecmaVersion: 12,
   },
@@ -20,14 +16,8 @@ module.exports = {
     },
   ],
   rules: {
-    "import/no-extraneous-dependencies": [
-      "error",
-      {
-        devDependencies: false,
-        optionalDependencies: false,
-        peerDependencies: false,
-      },
-    ],
+    "node/no-unpublished-require": "off",
+    "node/no-extraneous-require": "off",
     "prettier/prettier": [
       "error",
       {
