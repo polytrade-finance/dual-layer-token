@@ -1,75 +1,132 @@
-## Scripts
+# DLT (Dual Layer Token) Standard 🛠️
 
-This repository includes the following scripts in the `package.json` file:
+Welcome to the Dual-Layer-Token (DLT) Standard, proposed under EIP-6960! 🎉
 
-### Test
+DLT is a versatile and efficient token standard for managing diverse digital assets in a clear and organized manner. 📚💼🏦
 
-`npm run test`
+## Table of Contents 📑
 
-This command runs the test suite for the contract using the Hardhat testing framework. It will execute the command `npx hardhat test`, which will run all the tests in the project. The tests are used to check that the contract behaves as expected and to ensure that any changes made to the contract don't break existing functionality.
+- [About DLT](#about-dlt)
+- [DLT vs. Existing Standards](#dlt-vs-existing-standards)
+- [Interface Overview](#interface-overview)
+- [Key Functions](#key-functions)
+- [DLT Examples](#dlt-examples)
+- [Conclusion](#conclusion)
 
-### Test with coverage
+## About DLT 🚀
 
-`npm run test:coverage`
+DLT, or Dual Layer Token, is a unique token standard that combines the best features of existing standards while adding a novel layered structure, making it ideal for managing diverse asset types and their attributes.
 
-This command runs the test suite and generates a coverage report for the contract. It will execute the command `npx hardhat coverage`, which will run all the tests in the project and also generate a coverage report. A coverage report shows how much of the contract's code is being executed by the test suite.
+The DLT structure comprises:
 
-### Compile
+- `mainId`: Represents the primary asset type.
+- `subId`: Represents the unique attributes or variations of the asset.
 
-```
-npm run compile
-```
+## DLT vs. Existing Standards 🥊
 
-This command compiles the contract using the Hardhat compiler. It will execute the command `npx hardhat compile`, which will compile the contract code, and generate the bytecode and ABI needed to deploy the contract on the Ethereum blockchain.
+While existing token standards (ERC20, ERC721, ERC1155) have their merits, they each have limitations when dealing with diverse asset types and attributes within the same contract.
 
-### Lint TypeScript
+DLT overcomes these limitations by providing a more flexible, efficient, and scalable solution for managing various assets. 🏗️
 
-```
-npm run lint:ts
-```
+Benefits of DLT include:
 
-This command runs the ESLint linter on all TypeScript files in the project. It will execute the command `npx eslint '**/*.ts'`, which will check all TypeScript files in the project against a set of linting rules and report any errors or warnings.
+- Simplified Asset Management 📦
+- Optimized Gas Costs ⛽
+- Inherent Scalability 📈
+- Enhanced Interoperability 🧩
+- Fostering Innovation 💡
 
-### Lint TypeScript and fix issues
+## Interface Overview 📖
 
-```
-npm run lint:ts-fix
-```
+The DLT Interface consists of several key events and functions that facilitate the handling and management of tokens.
 
-This command runs the ESLint linter on all TypeScript files in the project and automatically fix any issues it finds.
+Key events include:
 
-### Lint Solidity
+- `Transfer`: Emitted when a token is transferred.
+- `TransferBatch`: Emitted for batch transfers.
+- `Approval`: Emitted when an owner approves a spender to manage a token.
+- `ApprovalForAll`: Emitted when a spender enables or disables an operator to manage all of its assets.
+- `URI`: Emitted when the URI of a mainId is changed.
 
-```
-npm run lint:sol
-```
+Key functions include:
 
-This command runs the Prettier and Solhint linters on all the Solidity files in the project. It will execute the command `npx prettier '**/*.{json,sol,md}' --check && npx solhint 'contracts/**/*.sol'`, which will check all the solidity files in the project against a set of linting rules and report any errors or warnings.
+- `setApprovalForAll`: Approve or remove an operator for the caller.
+- `safeTransferFrom`: Moves tokens using the allowance mechanism.
+- `approve`: Sets the allowance of a spender over the caller's tokens.
+- `subBalanceOf`: Returns the amount of tokens owned by an account.
+- `balanceOfBatch`: Returns the balances of multiple accounts.
+- `allowance`: Returns the remaining number of tokens that a spender can spend on behalf of an owner.
+- `isApprovedForAll`: Checks if an operator is allowed to manage all of the assets of an owner.
 
-### Lint Solidity and fix issues
+## Key Functions 📚
 
-```
-npm run lint:sol-fix
-```
+The DLT interface provides a set of functions to interact with and manage the tokens. Here's a brief overview:
 
-This command runs the Prettier and Solhint linters on all the Solidity files in the project and automatically fix any issues it finds.
+- `setApprovalForAll(operator, approved)`: Allows the approval or removal of `operator` as an operator for the caller. Operators can call `transferFrom` or `safeTransferFrom` for any token owned by the caller.
+- `safeTransferFrom(sender, recipient, mainId, subId, amount, data)`: Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller's allowance.
+- `approve(spender, mainId, subId, amount)`: Sets `amount` as the allowance of `spender` over the caller's tokens.
+- `subBalanceOf(account, mainId, subId)`: Returns the amount of tokens owned by `account
+- `balanceOfBatch(accounts, mainIds, subIds)`: Returns the balances of multiple `accounts` for each pair of `mainIds` and `subIds`.
+- `allowance(owner, spender, mainId, subId)`: Returns the remaining number of tokens that `spender` can spend on behalf of `owner` for a specific `mainId` and `subId`.
+- `isApprovedForAll(owner, operator)`: Checks if `operator` is allowed to manage all of the assets of `owner`.
 
-### Lint all
+## DLT Examples 🌟
 
-```
-npm run lint
-```
+1. Real Estate Platform with Fractional Ownership:
 
-This command runs both TypeScript and Solidity linters in the project.
+   DLT can represent unique houses (mainId) and fractional ownership (subId) efficiently within the same contract, allowing for a more versatile real estate platform.
 
-### Lint all and fix issues
+2. Invoice Factoring for SMEs:
 
-```
-npm run lint:fix
-```
+   DLT can represent unique invoices (mainId) and individual invoice components or fractional ownership (subId) efficiently within the same contract, allowing for a more versatile invoice factoring platform for SMEs.
 
-This command runs both TypeScript and Solidity linters in the project and automatically fix any issues it finds.
+## SubId Types 📏
 
-## Contribution
+DLT can manage different types of digital assets (mainIds) and their attributes or variations (subIds) with associated quantities in various applications. SubIds can be used in two ways:
 
-We welcome contributions to this repository. If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+1. Shared SubIds:
+
+   All mainIds share the same set of subIds.
+
+   Example: Smartphone Models and Storage Capacities
+
+   MainIds (Models):
+
+   - iPhone
+   - Samsung
+   - Google Pixel
+
+   SubIds (Storage Capacities):
+
+   - A: 64GB
+   - B: 128GB
+   - C: 256GB
+
+   Here, all smartphone models (mainIds) have the same storage capacities (subIds A, B, C).
+
+2. Mixed SubIds:
+
+   MainIds have unique sets of subIds.
+
+   Example: Courses and Instructors with Class Quotas
+
+   MainIds (Courses):
+
+   - Math
+   - Science
+   - History
+
+   SubIds (Instructors and Class Quotas):
+
+   - A: Alice (20 students)
+   - B: Bob (15 students)
+   - C: Carol (30 students)
+   - D: Dave (25 students)
+
+   Here, each course (mainId) has a different set of instructors (subIds) with specific class quotas.
+
+## Conclusion 🔚
+
+DLT is a versatile and efficient token standard that simplifies asset management, optimizes gas costs, and promotes scalability, interoperability, and innovation across various industries and use cases.
+
+By implementing the DLT standard in your projects, you can unlock the potential of blockchain technology for managing diverse assets and their unique attributes or variations. 🚀
