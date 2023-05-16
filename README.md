@@ -1,6 +1,6 @@
-# DLT (DualLayerToken) Standard 🛠️
+# DLT (Dual Layer Token) Standard 🛠️
 
-Welcome to the DualLayerToken (DLT) Standard, proposed under EIP-6960! 🎉
+Welcome to the Dual-Layer-Token (DLT) Standard, proposed under EIP-6960! 🎉
 
 DLT is a versatile and efficient token standard for managing diverse digital assets in a clear and organized manner. 📚💼🏦
 
@@ -15,7 +15,7 @@ DLT is a versatile and efficient token standard for managing diverse digital ass
 
 ## About DLT 🚀
 
-DLT, or DualLayerToken, is a unique token standard that combines the best features of existing standards while adding a novel layered structure, making it ideal for managing diverse asset types and their attributes.
+DLT, or Dual Layer Token, is a unique token standard that combines the best features of existing standards while adding a novel layered structure, making it ideal for managing diverse asset types and their attributes.
 
 The DLT structure comprises:
 
@@ -127,6 +127,6 @@ DLT can manage different types of digital assets (mainIds) and their attributes 
 
 ## Conclusion 🔚
 
-DLT (DualLayerToken) is a versatile and efficient token standard that simplifies asset management, optimizes gas costs, and promotes scalability, interoperability, and innovation across various industries and use cases.
+DLT is a versatile and efficient token standard that simplifies asset management, optimizes gas costs, and promotes scalability, interoperability, and innovation across various industries and use cases.
 
 By implementing the DLT standard in your projects, you can unlock the potential of blockchain technology for managing diverse assets and their unique attributes or variations. 🚀
