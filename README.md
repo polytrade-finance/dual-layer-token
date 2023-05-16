@@ -1,6 +1,6 @@
 # DLT (DualLayerToken) Standard 🛠️
 
-Welcome to the DualLayerToken (DLT) Standard, proposed under ERC-6960! 🎉
+Welcome to the DualLayerToken (DLT) Standard, proposed under EIP-6960! 🎉
 
 DLT is a versatile and efficient token standard for managing diverse digital assets in a clear and organized manner. 📚💼🏦
 
