@@ -16,4 +16,15 @@ contract DLTReceiverRevertable is IDLTReceiver {
     ) external returns (bytes4) {
         revert("DLTReceiverRevertable");
     }
+
+    function onDLTBatchReceived(
+        address,
+        address,
+        uint256[] memory,
+        uint256[] memory,
+        uint256[] memory,
+        bytes calldata data
+    ) external returns (bytes4) {
+        revert("DLTReceiverRevertable");
+    }
 }

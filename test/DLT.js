@@ -47,6 +47,25 @@ describe("DLT", async function () {
   });
 
   describe("Should reflect balances", async function () {
+    it("Should return batch balances after minting", async function () {
+      await DLT.mint(owner.address, 2, 1, ethers.utils.parseEther("10000"));
+
+      expect(
+        await DLT.balanceOfBatch([owner.address, owner.address], [1, 2], [1, 1])
+      ).to.deep.equal([
+        await DLT.subBalanceOf(owner.address, 1, 1),
+        await DLT.subBalanceOf(owner.address, 2, 1),
+      ]);
+    });
+
+    it("Should revert batch balances because of array parity after minting", async function () {
+      await DLT.mint(owner.address, 2, 1, ethers.utils.parseEther("10000"));
+
+      await expect(
+        DLT.balanceOfBatch([owner.address], [1, 2], [1, 1])
+      ).to.be.revertedWith("DLT: accounts, mainIds and ids length mismatch");
+    });
+
     it("Should increase balances after minting", async function () {
       expect(await DLT.totalMainSupply(1)).to.equal(
         ethers.utils.parseEther("10000")
@@ -254,6 +273,90 @@ describe("DLT", async function () {
       expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
         ethers.utils.parseEther("3000")
       );
+    });
+
+    it("Should batch safeTransferFrom by the owner himself without approvals", async function () {
+      expect(
+        await DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          user1.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1
+        )
+      )
+        .to.emit(DLT, "TransferBatch")
+        .withArgs(
+          owner.address,
+          owner.address,
+          user1.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")]
+        );
+
+      expect(await DLT.subBalanceOf(user1.address, 1, 1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
+
+      expect(await DLT.subBalanceOf(owner.address, 1, 1)).to.equal(
+        ethers.utils.parseEther("5000")
+      );
+    });
+
+    it("Should revert batch safeTransferFrom by invalid spender without approvals", async function () {
+      await expect(
+        DLT.connect(user1).safeBatchTransferFrom(
+          owner.address,
+          user1.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1
+        )
+      ).to.be.revertedWith(
+        "DLT: caller is not token owner or approved for all"
+      );
+    });
+
+    it("Should revert batch safeTransferFrom because of array mismatch length", async function () {
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          user1.address,
+          [], // mismatch
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1
+        )
+      ).to.be.revertedWith("DLT: mainIds, subIds and amounts length mismatch");
+    });
+
+    it("Should revert batch safeTransferFrom to address zero", async function () {
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          ethers.constants.AddressZero,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1
+        )
+      ).to.be.revertedWith("DLT: transfer to the zero address");
+    });
+
+    it("Should revert batch safeTransferFrom because of insufficient balance", async function () {
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          user1.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("100000")],
+          1
+        )
+      ).to.be.revertedWith("DLT: insufficient balance for transfer");
     });
 
     it("Set Approval for all", async function () {
@@ -496,6 +599,19 @@ describe("DLT", async function () {
       ).to.not.be.reverted;
     });
 
+    it("Should not revert on batch safeTransferFrom to DLTReceiver implementer", async function () {
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          DLTReceiver.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1 // byte
+        )
+      ).to.not.be.reverted;
+    });
+
     it("Should revert on transfer to DLTNonReceiver implementer", async function () {
       await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
       await expect(
@@ -507,6 +623,21 @@ describe("DLT", async function () {
           1,
           1,
           ethers.utils.parseEther("5000"),
+          1 // byte
+        )
+      ).to.be.revertedWith("DLT: transfer to non DLTReceiver implementer");
+    });
+
+    it("Should revert on batch safeTransfer to DLTNonReceiver implementer", async function () {
+      await DLT.approve(user1.address, 1, 1, ethers.utils.parseEther("10000"));
+
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          DLTNonReceiver.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
           1 // byte
         )
       ).to.be.revertedWith("DLT: transfer to non DLTReceiver implementer");
@@ -535,11 +666,39 @@ describe("DLT", async function () {
       ).to.be.revertedWith("DLTReceiverRevertable");
     });
 
+    it("Should revert on batch safeTransferFrom to DLTReceiverRevertable implementer", async function () {
+      await expect(
+        DLT.connect(owner).safeBatchTransferFrom(
+          owner.address,
+          DLTReceiverRevertable.address,
+          [1],
+          [1],
+          [ethers.utils.parseEther("5000")],
+          1 // byte
+        )
+      ).to.be.revertedWith("DLTReceiverRevertable");
+    });
+
     it("Should not revert on calling onDLTReceived in DLTReceiver", async function () {
       const addressZero = ethers.constants.AddressZero;
 
       await expect(
         DLTReceiver.onDLTReceived(addressZero, addressZero, 1, 1, 1, 1)
+      ).to.not.be.reverted;
+    });
+
+    it("Should not revert on calling onDLTBatchReceived in DLTReceiver", async function () {
+      const addressZero = ethers.constants.AddressZero;
+
+      await expect(
+        DLTReceiver.onDLTBatchReceived(
+          addressZero,
+          addressZero,
+          [1],
+          [1],
+          [1],
+          [1]
+        )
       ).to.not.be.reverted;
     });
 
@@ -554,6 +713,21 @@ describe("DLT", async function () {
           1,
           1,
           1
+        )
+      ).to.be.revertedWith("DLTReceiverRevertable");
+    });
+
+    it("Should revert on calling onDLTBatchReceived in DLTReceiverRevertable", async function () {
+      const addressZero = ethers.constants.AddressZero;
+
+      await expect(
+        DLTReceiverRevertable.onDLTBatchReceived(
+          addressZero,
+          addressZero,
+          [1],
+          [1],
+          [1],
+          [1]
         )
       ).to.be.revertedWith("DLTReceiverRevertable");
     });
