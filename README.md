@@ -74,11 +74,11 @@ The DLT interface provides a set of functions to interact with and manage the to
 
 1. Real Estate Platform with Fractional Ownership:
 
-    DLT can represent unique houses (mainId) and fractional ownership (subId) efficiently within the same contract, allowing for a more versatile real estate platform.
+   DLT can represent unique houses (mainId) and fractional ownership (subId) efficiently within the same contract, allowing for a more versatile real estate platform.
 
 2. Invoice Factoring for SMEs:
 
-    DLT can represent unique invoices (mainId) and individual invoice components or fractional ownership (subId) efficiently within the same contract, allowing for a more versatile invoice factoring platform for SMEs.
+   DLT can represent unique invoices (mainId) and individual invoice components or fractional ownership (subId) efficiently within the same contract, allowing for a more versatile invoice factoring platform for SMEs.
 
 ## SubId Types 📏
 
@@ -91,11 +91,13 @@ DLT can manage different types of digital assets (mainIds) and their attributes 
    Example: Smartphone Models and Storage Capacities
 
    MainIds (Models):
+
    - iPhone
    - Samsung
    - Google Pixel
 
    SubIds (Storage Capacities):
+
    - A: 64GB
    - B: 128GB
    - C: 256GB
@@ -109,11 +111,13 @@ DLT can manage different types of digital assets (mainIds) and their attributes 
    Example: Courses and Instructors with Class Quotas
 
    MainIds (Courses):
+
    - Math
    - Science
    - History
 
    SubIds (Instructors and Class Quotas):
+
    - A: Alice (20 students)
    - B: Bob (15 students)
    - C: Carol (30 students)
