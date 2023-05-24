@@ -14,6 +14,25 @@ interface IDLT {
     );
 
     /**
+        The `spender` argument of an account/contract that is approved to make the transfer (SHOULD be msg.sender).
+        The `sender` argument of the holder whose balance is decreased.
+        The `recipient` argument of the recipient whose balance is increased.
+        The `mainIds` argument MUST be the list of mainIds being transferred.
+        The `subIds` argument MUST be the list of subIds being transferred.
+        The `amounts` argument MUST be the list of number of tokens
+        When minting/creating tokens, the `sender` argument MUST be set to `0x0`.
+        When burning/destroying tokens, the `recipient` argument MUST be set to `0x0`.                
+    */
+    event TransferBatch(
+        address indexed spender,
+        address indexed sender,
+        address indexed recipient,
+        uint256[] mainIds,
+        uint256[] subIds,
+        uint256[] amounts
+    );
+
+    /**
      * @dev Emitted when `owner` enables `spender` to manage the `subId` token.
      */
     event Approval(
@@ -87,6 +106,18 @@ interface IDLT {
         uint256 mainId,
         uint256 subId
     ) external view returns (uint256);
+
+    /**
+     *
+     * Requirements:
+     *
+     * - `accounts` and `mainIds` and `subIds` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory mainIds,
+        uint256[] memory subIds
+    ) external view returns (uint256[] memory);
 
     /**
      * @dev Returns the remaining number of tokens that `spender` will be

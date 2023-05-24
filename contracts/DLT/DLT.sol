@@ -80,6 +80,31 @@ contract DLT is Context, IDLT {
         return true;
     }
 
+    function safeBatchTransferFrom(
+        address sender,
+        address recipient,
+        uint256[] calldata mainIds,
+        uint256[] calldata subIds,
+        uint256[] calldata amounts,
+        bytes calldata data
+    ) public returns (bool) {
+        address spender = _msgSender();
+
+        require(
+            _isApprovedOrOwner(sender, spender),
+            "DLT: caller is not token owner or approved for all"
+        );
+
+        _safeBatchTransferFrom(
+            sender,
+            recipient,
+            mainIds,
+            subIds,
+            amounts,
+            data
+        );
+    }
+
     function transferFrom(
         address sender,
         address recipient,
@@ -97,6 +122,33 @@ contract DLT is Context, IDLT {
         uint256 subId
     ) public view virtual override returns (uint256) {
         return _balances[mainId][account][subId];
+    }
+
+    /**
+     * @dev See {IDLT-balanceOfBatch}.
+     *
+     * Requirements:
+     *
+     * - `accounts` and `mainIds` and `subIds` must have the same length.
+     */
+    function balanceOfBatch(
+        address[] memory accounts,
+        uint256[] memory mainIds,
+        uint256[] memory subIds
+    ) public view returns (uint256[] memory) {
+        require(
+            accounts.length == mainIds.length &&
+                accounts.length == subIds.length,
+            "DLT: accounts, mainIds and ids length mismatch"
+        );
+
+        uint256[] memory batchBalances = new uint256[](accounts.length);
+
+        for (uint256 i = 0; i < accounts.length; ++i) {
+            batchBalances[i] = subBalanceOf(accounts[i], mainIds[i], subIds[i]);
+        }
+
+        return batchBalances;
     }
 
     function allowance(
@@ -211,6 +263,68 @@ contract DLT is Context, IDLT {
         _safeTransfer(sender, recipient, mainId, subId, amount, data);
     }
 
+    /**
+     *
+     * Emits a {TransferBatch} event.
+     *
+     * Requirements:
+     *
+     * - If `recipient` refers to a smart contract, it must implement {IDLTReceiver-onDLTReceived} and return the
+     * acceptance magic value.
+     */
+    function _safeBatchTransferFrom(
+        address sender,
+        address recipient,
+        uint256[] memory mainIds,
+        uint256[] memory subIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) internal virtual {
+        require(
+            mainIds.length == subIds.length && mainIds.length == amounts.length,
+            "DLT: mainIds, subIds and amounts length mismatch"
+        );
+        require(recipient != address(0), "DLT: transfer to the zero address");
+
+        address operator = _msgSender();
+
+        for (uint256 i = 0; i < mainIds.length; ++i) {
+            uint256 mainId = mainIds[i];
+            uint256 subId = subIds[i];
+            uint256 amount = amounts[i];
+            uint256 senderBalance = _balances[mainId][sender][subId];
+
+            require(
+                senderBalance >= amount,
+                "DLT: insufficient balance for transfer"
+            );
+            unchecked {
+                _balances[mainId][sender][subId] = senderBalance - amount;
+            }
+            _balances[mainId][recipient][subId] += amount;
+        }
+
+        emit TransferBatch(
+            operator,
+            sender,
+            recipient,
+            mainIds,
+            subIds,
+            amounts
+        );
+        require(
+            _checkOnDLTBatchReceived(
+                sender,
+                recipient,
+                mainIds,
+                subIds,
+                amounts,
+                data
+            ),
+            "DLT: transfer to non DLTReceiver implementer"
+        );
+    }
+
     function _transferFrom(
         address sender,
         address recipient,
@@ -218,7 +332,7 @@ contract DLT is Context, IDLT {
         uint256 subId,
         uint256 amount
     ) internal virtual {
-        address spender = msg.sender;
+        address spender = _msgSender();
 
         if (!_isApprovedOrOwner(sender, spender)) {
             _spendAllowance(sender, spender, mainId, subId, amount);
@@ -358,7 +472,7 @@ contract DLT is Context, IDLT {
      * @dev Destroys `amount` tokens from `account`, reducing the
      * total supply.
      *
-     * Emits a {Transfer} event with `to` set to the zero address.
+     * Emits a {Transfer} event with `recipient` set to the zero address.
      *
      * Requirements:
      *
@@ -483,6 +597,41 @@ contract DLT is Context, IDLT {
                 )
             returns (bytes4 retval) {
                 return retval == IDLTReceiver.onDLTReceived.selector;
+            } catch (bytes memory reason) {
+                if (reason.length == 0) {
+                    revert("DLT: transfer to non DLTReceiver implementer");
+                } else {
+                    /// @solidity memory-safe-assembly
+                    assembly {
+                        revert(add(32, reason), mload(reason))
+                    }
+                }
+            }
+        } else {
+            return true;
+        }
+    }
+
+    function _checkOnDLTBatchReceived(
+        address sender,
+        address recipient,
+        uint256[] memory mainIds,
+        uint256[] memory subIds,
+        uint256[] memory amounts,
+        bytes memory data
+    ) private returns (bool) {
+        if (recipient.code.length > 0) {
+            try
+                IDLTReceiver(recipient).onDLTBatchReceived(
+                    _msgSender(),
+                    sender,
+                    mainIds,
+                    subIds,
+                    amounts,
+                    data
+                )
+            returns (bytes4 retval) {
+                return retval == IDLTReceiver.onDLTBatchReceived.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
                     revert("DLT: transfer to non DLTReceiver implementer");
