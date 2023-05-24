@@ -185,6 +185,70 @@ describe("DLTPermit", async function () {
       ).to.be.revertedWithCustomError(DLT, "InvalidSignature");
     });
 
+    it("rejects with invalid S parameter", async function () {
+      signature = await spender._signTypedData(
+        { ...domainData, verifyingContract: DLT.address },
+        permitType,
+        {
+          owner: initialHolder.address,
+          spender: spender.address,
+          mainId,
+          subId,
+          amount,
+          nonce,
+          deadline,
+        }
+      );
+
+      const { r, v } = splitSignature(signature);
+      const s = ethers.constants.MaxUint256;
+      await expect(
+        DLT.permit(
+          initialHolder.address,
+          spender.address,
+          mainId,
+          subId,
+          amount,
+          deadline,
+          v,
+          r,
+          s
+        )
+      ).to.be.revertedWithCustomError(DLT, "InvalidSignatureS");
+    });
+
+    it("rejects with invalid V parameter", async function () {
+      signature = await spender._signTypedData(
+        { ...domainData, verifyingContract: DLT.address },
+        permitType,
+        {
+          owner: initialHolder.address,
+          spender: spender.address,
+          mainId,
+          subId,
+          amount,
+          nonce,
+          deadline,
+        }
+      );
+
+      const { r, s } = splitSignature(signature);
+      const v = 0;
+      await expect(
+        DLT.permit(
+          initialHolder.address,
+          spender.address,
+          mainId,
+          subId,
+          amount,
+          deadline,
+          v,
+          r,
+          s
+        )
+      ).to.be.revertedWithCustomError(DLT, "InvalidSigner");
+    });
+
     it("rejects expired permit", async function () {
       const expiredDeadline = (await time.latest()) - 100;
 
