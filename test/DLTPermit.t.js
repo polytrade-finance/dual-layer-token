@@ -93,17 +93,9 @@ describe("DLTPermit", async function () {
         ],
       };
       signature = await initialHolder._signTypedData(
-        { ...domainData, verifyingContract: DLT.address },
+        domainData,
         permitType,
-        {
-          owner: initialHolder.address,
-          spender: spender.address,
-          mainId,
-          subId,
-          amount,
-          nonce,
-          deadline,
-        }
+        params
       );
 
       // Validate Signature Offchain
@@ -154,19 +146,7 @@ describe("DLTPermit", async function () {
     });
 
     it("rejects other signature", async function () {
-      signature = await spender._signTypedData(
-        { ...domainData, verifyingContract: DLT.address },
-        permitType,
-        {
-          owner: initialHolder.address,
-          spender: spender.address,
-          mainId,
-          subId,
-          amount,
-          nonce,
-          deadline,
-        }
-      );
+      signature = await spender._signTypedData(domainData, permitType, params);
 
       const { r, s, v } = splitSignature(signature);
 
@@ -186,19 +166,7 @@ describe("DLTPermit", async function () {
     });
 
     it("rejects with invalid S parameter", async function () {
-      signature = await spender._signTypedData(
-        { ...domainData, verifyingContract: DLT.address },
-        permitType,
-        {
-          owner: initialHolder.address,
-          spender: spender.address,
-          mainId,
-          subId,
-          amount,
-          nonce,
-          deadline,
-        }
-      );
+      signature = await spender._signTypedData(domainData, permitType, params);
 
       const { r, v } = splitSignature(signature);
       const s = ethers.constants.MaxUint256;
@@ -218,19 +186,7 @@ describe("DLTPermit", async function () {
     });
 
     it("rejects with invalid V parameter", async function () {
-      signature = await spender._signTypedData(
-        { ...domainData, verifyingContract: DLT.address },
-        permitType,
-        {
-          owner: initialHolder.address,
-          spender: spender.address,
-          mainId,
-          subId,
-          amount,
-          nonce,
-          deadline,
-        }
-      );
+      signature = await spender._signTypedData(domainData, permitType, params);
 
       const { r, s } = splitSignature(signature);
       const v = 0;
@@ -252,19 +208,7 @@ describe("DLTPermit", async function () {
     it("rejects expired permit", async function () {
       const expiredDeadline = (await time.latest()) - 100;
 
-      signature = await spender._signTypedData(
-        { ...domainData, verifyingContract: DLT.address },
-        permitType,
-        {
-          owner: initialHolder.address,
-          spender: spender.address,
-          mainId,
-          subId,
-          amount,
-          nonce,
-          deadline: expiredDeadline,
-        }
-      );
+      signature = await spender._signTypedData(domainData, permitType, params);
 
       const { r, s, v } = splitSignature(signature);
 
