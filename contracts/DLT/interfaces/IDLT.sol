@@ -114,9 +114,9 @@ interface IDLT {
      * - `accounts` and `mainIds` and `subIds` must have the same length.
      */
     function balanceOfBatch(
-        address[] memory accounts,
-        uint256[] memory mainIds,
-        uint256[] memory subIds
+        address[] calldata accounts,
+        uint256[] calldata mainIds,
+        uint256[] calldata subIds
     ) external view returns (uint256[] memory);
 
     /**
