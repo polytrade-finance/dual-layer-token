@@ -10,10 +10,7 @@ contract TestDLT is DLT, DLTEnumerable, DLTPermit {
         string memory name,
         string memory symbol,
         string memory version
-    ) DLT(name, symbol) DLTPermit(name, version) {
-        name;
-        symbol;
-    }
+    ) DLT(name, symbol) DLTPermit(name, version) {}
 
     function mint(
         address account,
