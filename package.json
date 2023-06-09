@@ -2,6 +2,9 @@
   "name": "dual-layer-token",
   "description": "This name has been chosen because the DLT operates with a dual-layer structure, utilizing mainIds and subIds for versatile token management. DLT is not yet a standard, but it aims to offer a comprehensive solution for various industries, including gaming, invoice trading, and real estate.",
   "version": "0.1.3",
+  "engines": {
+    "node": ">=8.3.0"
+  },
   "directories": {
     "contracts": "contracts",
     "test": "test"
@@ -24,25 +27,29 @@
   },
   "author": "Polytrade",
   "license": "MIT",
-  "dependencies": {
-    "@onchain-id/solidity": "^2.0.0",
-    "@openzeppelin/contracts": "^4.8.3",
-    "hardhat": "^2.14.0"
-  },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
-    "@nomiclabs/hardhat-solhint": "^3.0.1",
-    "@primitivefi/hardhat-dodoc": "^0.2.3",
-    "@typescript-eslint/eslint-plugin": "^5.59.5",
-    "@typescript-eslint/parser": "^5.59.5",
-    "dotenv": "^16.0.3",
-    "eslint-config-prettier": "^8.8.0",
+    "eslint": "^8.32.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "hardhat-contract-sizer": "^2.8.0",
-    "hardhat-gas-reporter": "^1.0.9",
+    "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
-    "prettier": "^2.8.8",
+    "prettier": "^2.8.3",
+    "prettier-plugin-solidity": "^1.1.1",
+    "solhint": "^3.3.8",
     "solhint-plugin-prettier": "^0.0.5"
+  },
+  "dependencies": {
+    "@metamask/eth-sig-util": "^5.1.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.7",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "@openzeppelin/contracts": "^4.8.1",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.0",
+    "hardhat": "^2.12.6",
+    "hardhat-contract-sizer": "^2.8.0"
   }
 }

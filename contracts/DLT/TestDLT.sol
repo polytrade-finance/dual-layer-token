@@ -3,12 +3,14 @@ pragma solidity 0.8.17;
 
 import { DLT } from "./DLT.sol";
 import { DLTEnumerable } from "./extensions/DLTEnumerable.sol";
+import { DLTPermit } from "./extensions/DLTPermit.sol";
 
-contract TestDLT is DLTEnumerable {
-    constructor(string memory name, string memory symbol) DLT(name, symbol) {
-        name;
-        symbol;
-    }
+contract TestDLT is DLT, DLTEnumerable, DLTPermit {
+    constructor(
+        string memory name,
+        string memory symbol,
+        string memory version
+    ) DLT(name, symbol) DLTPermit(name, version) {}
 
     function mint(
         address account,
@@ -46,5 +48,23 @@ contract TestDLT is DLTEnumerable {
         uint256 amount
     ) external {
         _approve(sender, recipient, mainId, subId, amount);
+    }
+
+    function _mint(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual override(DLT, DLTEnumerable) {
+        super._mint(recipient, mainId, subId, amount);
+    }
+
+    function _burn(
+        address recipient,
+        uint256 mainId,
+        uint256 subId,
+        uint256 amount
+    ) internal virtual override(DLT, DLTEnumerable) {
+        super._burn(recipient, mainId, subId, amount);
     }
 }
