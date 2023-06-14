@@ -10,7 +10,7 @@ and adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 
 - **DLTPermit extension** has been included, allowing the approval of a spender through message-based signing following[EIP-2612](https://eips.ethereum.org/EIPS/eip-2612). It involves calling the permit function with signed parameters.
-- **DLTEnumerable extension**has been added to track the amounts in both main IDs and sub-IDs, including `totalMainIds`, `totalSubIds`, `totalMainSupply`, `totalSubSupply`, `getSubIds`, `subIdBalanceOf` functions.
+- **DLTEnumerable extension** has been added to track the amounts in both main IDs and sub-IDs, including `totalMainIds`, `totalSubIds`, `totalMainSupply`, `totalSubSupply`, `getSubIds`, `subIdBalanceOf` functions.
 - The new `getSubIds` function retrieves all sub-IDs associated with a main ID.
 
 ### Changed
