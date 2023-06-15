@@ -34,19 +34,6 @@
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
-<<<<<<< HEAD
-<<<<<<< HEAD
-    "hardhat-contract-sizer": "^2.8.0",
-    "hardhat-gas-reporter": "^1.0.9",
-=======
-    "eslint-plugin-promise": "^6.1.1",
->>>>>>> 96e4855 (📦 resolve conflict)
-    "husky": "^8.0.3",
-    "prettier": "^2.8.3",
-    "prettier-plugin-solidity": "^1.1.1",
-    "solhint": "^3.3.8",
-    "solhint-plugin-prettier": "^0.0.5"
-=======
     "eslint-plugin-promise": "^6.1.1",
     "husky": "^8.0.3",
     "prettier": "^2.8.3",
@@ -64,9 +51,5 @@
     "ethers": "^5.7.0",
     "hardhat": "^2.12.6",
     "hardhat-contract-sizer": "^2.8.0"
-<<<<<<< HEAD
->>>>>>> 2cb1bbc (📦 add packages)
-=======
->>>>>>> 96e4855 (📦 resolve conflict)
   }
 }
