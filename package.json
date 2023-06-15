@@ -1,35 +1,33 @@
 {
-  "name": "template-sc",
-  "description": "Template Smart Contracts",
+  "name": "dual-layer-token",
+  "description": "This name has been chosen because the DLT operates with a dual-layer structure, utilizing mainIds and subIds for versatile token management. DLT is not yet a standard, but it aims to offer a comprehensive solution for various industries, including gaming, invoice trading, and real estate.",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=8.3.0"
+  },
   "directories": {
+    "contracts": "contracts",
     "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/polytrade-finance/dual-layer-token.git"
   },
   "scripts": {
     "test": "npx hardhat test",
     "test:coverage": "npx hardhat coverage",
     "compile": "npx hardhat compile",
-    "lint:ts": "npx eslint '**/*.ts'",
-    "lint:ts-fix": "npx eslint '**/*.ts' --fix",
-    "lint:sol": "npx prettier '**/*.{json,sol,md}' --check && npx solhint 'contracts/**/*.sol'",
-    "lint:sol-fix": "npx prettier '**/*.{json,sol,md}' --write && npx solhint 'contracts/**/*.sol' --fix",
-    "lint": "npm run lint:ts && npm run lint:sol",
-    "lint:fix": "npm run lint:ts-fix && npm run lint:sol-fix",
+    "lint:js": "npx eslint \"**/*.js\"",
+    "lint:js-fix": "npx eslint \"**/*.js\" --fix",
+    "lint:sol": "npx prettier \"**/*.{json,sol,md}\" --check && npx solhint \"contracts/**/*.sol\"",
+    "lint:sol-fix": "npx prettier \"**/*.{json,sol,md}\" --write && npx solhint \"contracts/**/*.sol\" --fix",
+    "lint": "npm run lint:js && npm run lint:sol",
+    "lint:fix": "npm run lint:js-fix && npm run lint:sol-fix",
     "prepare": "husky install"
   },
+  "author": "Polytrade",
+  "license": "MIT",
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.2.2",
-    "@nomiclabs/hardhat-etherscan": "^3.1.5",
-    "@nomiclabs/hardhat-waffle": "^2.0.3",
-    "@typechain/ethers-v5": "^10.2.0",
-    "@typechain/hardhat": "^6.1.5",
-    "@types/chai": "^4.3.4",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^18.11.18",
-    "@typescript-eslint/eslint-plugin": "^5.48.2",
-    "@typescript-eslint/parser": "^5.48.2",
-    "chai": "^4.3.7",
-    "dotenv": "^16.0.3",
     "eslint": "^8.32.0",
     "eslint-config-prettier": "^8.6.0",
     "eslint-config-standard": "^17.0.0",
@@ -37,21 +35,21 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-promise": "^6.1.1",
-    "ethereum-waffle": "^3.4.4",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.12.6",
-    "hardhat-gas-reporter": "^1.0.9",
     "husky": "^8.0.3",
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1",
     "solhint": "^3.3.8",
-    "solhint-plugin-prettier": "^0.0.5",
-    "solidity-coverage": "^0.8.2",
-    "ts-node": "^10.9.1",
-    "typechain": "^8.1.1",
-    "typescript": "^4.9.4"
+    "solhint-plugin-prettier": "^0.0.5"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^4.8.1"
+    "@metamask/eth-sig-util": "^5.1.0",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.7",
+    "@nomicfoundation/hardhat-toolbox": "^2.0.1",
+    "@openzeppelin/contracts": "^4.8.1",
+    "chai": "^4.3.7",
+    "dotenv": "^16.0.3",
+    "ethers": "^5.7.0",
+    "hardhat": "^2.12.6",
+    "hardhat-contract-sizer": "^2.8.0"
   }
 }

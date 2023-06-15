@@ -1,3 +1,6 @@
 module.exports = {
-  skipFiles: []
+  skipFiles: [
+    "./contracts/DLT/utils/DLTReceiver.sol",
+    "./contracts/DLT/utils/DLTReceiverRevertable.sol",
+  ],
 };

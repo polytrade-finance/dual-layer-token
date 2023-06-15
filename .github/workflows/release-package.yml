@@ -1,0 +1,38 @@
+name: dual layer token
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm ci
+      - run: npm test
+
+  publish-gpr:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://npm.pkg.github.com/
+      - run: npm ci
+      - name: Authenticate and publish with NPM
+        run: |
+          echo "//registry.npmjs.org/:_authToken=\${NPM_WORKFLOW_TOKEN}" >> .npmrc
+          echo "email=mohamad@polytrade.finance" >> .npmrc
+          npm publish --access public
+        env:
+          NPM_WORKFLOW_TOKEN: ${{secrets.NPM_WORKFLOW_TOKEN}}
