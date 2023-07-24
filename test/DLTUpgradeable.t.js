@@ -754,33 +754,20 @@ describe("DLTUpgradeable", async function () {
 
     it("Should revert to initialize again", async function () {
       await expect(
-        DLT.initialize(
-          "Polytrade DLT",
-          "PLT",
-          "1.0",
-        )
+        DLT.initialize("Polytrade DLT", "PLT", "1.0")
       ).to.be.revertedWith("Initializable: contract is already initialized");
-
     });
 
     it("Should revert to initialize not initializer function", async function () {
-      await expect(
-        DLT.initDLT(
-          "Polytrade DLT",
-          "PLT",
-        )
-      ).to.be.revertedWith("Initializable: contract is not initializing");
-
+      await expect(DLT.initDLT("Polytrade DLT", "PLT")).to.be.revertedWith(
+        "Initializable: contract is not initializing"
+      );
     });
 
     it("Should revert to initialize not initializer unchained function", async function () {
       await expect(
-        DLT.initDLTUnchained(
-          "Polytrade DLT",
-          "PLT",
-        )
+        DLT.initDLTUnchained("Polytrade DLT", "PLT")
       ).to.be.revertedWith("Initializable: contract is not initializing");
-
     });
   });
 });

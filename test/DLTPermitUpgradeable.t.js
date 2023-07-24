@@ -50,31 +50,20 @@ describe("DLTPermitUpgradeable", async function () {
   });
 
   it("Should revert to initialize again", async function () {
-    await expect(
-      DLT.initialize(
-        name,
-        symbol,
-        version
-      )
-    ).to.be.revertedWith("Initializable: contract is already initialized");
-
+    await expect(DLT.initialize(name, symbol, version)).to.be.revertedWith(
+      "Initializable: contract is already initialized"
+    );
   });
 
   it("Should revert to initialize not initializer function", async function () {
-    await expect(
-      DLT.initDLTPermit(
-        "Polytrade DLT",
-        "1.0",
-      )
-    ).to.be.revertedWith("Initializable: contract is not initializing");
+    await expect(DLT.initDLTPermit("Polytrade DLT", "1.0")).to.be.revertedWith(
+      "Initializable: contract is not initializing"
+    );
   });
 
   it("Should revert to initialize not initializer unchained function", async function () {
     await expect(
-      DLT.initDLTPermitUnchained(
-        "Polytrade DLT",
-        "1.0",
-      )
+      DLT.initDLTPermitUnchained("Polytrade DLT", "1.0")
     ).to.be.revertedWith("Initializable: contract is not initializing");
   });
 
