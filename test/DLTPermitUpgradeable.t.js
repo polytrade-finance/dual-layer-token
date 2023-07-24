@@ -7,7 +7,7 @@ const {
   validateRecoveredAddress,
 } = require("./helpers/eip712");
 
-describe("DLTPermit", async function () {
+describe("DLTPermitUpgradeable", async function () {
   let DLT;
   let initialHolder;
   let spender;
@@ -47,6 +47,35 @@ describe("DLTPermit", async function () {
     expect(await DLT.subBalanceOf(initialHolder.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("10000")
     );
+  });
+
+  it("Should revert to initialize again", async function () {
+    await expect(
+      DLT.initialize(
+        name,
+        symbol,
+        version
+      )
+    ).to.be.revertedWith("Initializable: contract is already initialized");
+
+  });
+
+  it("Should revert to initialize not initializer function", async function () {
+    await expect(
+      DLT.initDLTPermit(
+        "Polytrade DLT",
+        "1.0",
+      )
+    ).to.be.revertedWith("Initializable: contract is not initializing");
+  });
+
+  it("Should revert to initialize not initializer unchained function", async function () {
+    await expect(
+      DLT.initDLTPermitUnchained(
+        "Polytrade DLT",
+        "1.0",
+      )
+    ).to.be.revertedWith("Initializable: contract is not initializing");
   });
 
   it("initial nonce is 0", async function () {
@@ -174,7 +203,7 @@ describe("DLTPermit", async function () {
     signature = await spender.signTypedData(domainData, permitType, params);
 
     const { r, v } = ethers.Signature.from(signature);
-    const s = ethers.randomBytes(32);
+    const s = ethers.toQuantity(ethers.MaxUint256);
     await expect(
       DLT.permit(
         await initialHolder.getAddress(),

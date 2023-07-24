@@ -173,7 +173,7 @@ describe("DLTPermit", async function () {
     signature = await spender.signTypedData(domainData, permitType, params);
 
     const { r, v } = ethers.Signature.from(signature);
-    const s = ethers.randomBytes(32);
+    const s = ethers.toQuantity(ethers.MaxUint256);
     await expect(
       DLT.permit(
         await initialHolder.getAddress(),

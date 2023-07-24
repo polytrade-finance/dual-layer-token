@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("DLT", async function () {
+describe("DLTUpgradeable", async function () {
   let DLT;
   let DLTReceiver;
   let DLTNonReceiver;
@@ -750,6 +750,37 @@ describe("DLT", async function () {
           ethers.randomBytes(1)
         )
       ).to.be.revertedWith("DLTReceiverRevertable");
+    });
+
+    it("Should revert to initialize again", async function () {
+      await expect(
+        DLT.initialize(
+          "Polytrade DLT",
+          "PLT",
+          "1.0",
+        )
+      ).to.be.revertedWith("Initializable: contract is already initialized");
+
+    });
+
+    it("Should revert to initialize not initializer function", async function () {
+      await expect(
+        DLT.initDLT(
+          "Polytrade DLT",
+          "PLT",
+        )
+      ).to.be.revertedWith("Initializable: contract is not initializing");
+
+    });
+
+    it("Should revert to initialize not initializer unchained function", async function () {
+      await expect(
+        DLT.initDLTUnchained(
+          "Polytrade DLT",
+          "PLT",
+        )
+      ).to.be.revertedWith("Initializable: contract is not initializing");
+
     });
   });
 });
