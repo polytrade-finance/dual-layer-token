@@ -13,27 +13,36 @@ describe("DLT", async function () {
     [owner, user1] = await ethers.getSigners();
 
     // ------------------------------------------------------------------
-    const DLTReceiverFactory = await ethers.getContractFactory("DLTReceiver");
-    DLTReceiver = await DLTReceiverFactory.deploy();
+    const DLTReceiverFactory = await ethers.getContractFactory(
+      "DLTReceiverUpgradeable"
+    );
+    DLTReceiver = await upgrades.deployProxy(DLTReceiverFactory);
 
     // ------------------------------------------------------------------
     const DLTNonReceiverFactory = await ethers.getContractFactory(
-      "DLTNonReceiver"
+      "DLTNonReceiverUpgradeable"
     );
-    DLTNonReceiver = await DLTNonReceiverFactory.deploy();
+    DLTNonReceiver = await upgrades.deployProxy(DLTNonReceiverFactory);
 
     // ------------------------------------------------------------------
     const DLTReceiverRevertableFactory = await ethers.getContractFactory(
-      "DLTReceiverRevertable"
+      "DLTReceiverRevertableUpgradeable"
     );
-    DLTReceiverRevertable = await DLTReceiverRevertableFactory.deploy();
+    DLTReceiverRevertable = await upgrades.deployProxy(
+      DLTReceiverRevertableFactory
+    );
     // ------------------------------------------------------------------
   });
 
   beforeEach("Restart Deployment DLT at each test use case", async function () {
     // ------------------------------------------------------------------
-    const DLTFactory = await ethers.getContractFactory("TestDLT");
-    DLT = await DLTFactory.deploy("Polytrade DLT", "PLT", "1.0");
+
+    const DLTFactory = await ethers.getContractFactory("TestDLTUpgradeable");
+    DLT = await upgrades.deployProxy(DLTFactory, [
+      "Polytrade DLT",
+      "PLT",
+      "1.0",
+    ]);
 
     expect(await DLT.subBalanceOf(owner.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("0")

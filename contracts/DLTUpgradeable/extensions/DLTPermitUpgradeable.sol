@@ -61,7 +61,7 @@ abstract contract DLTPermitUpgradeable is
         string memory name,
         string memory version
     ) internal onlyInitializing {
-        __DLT_init_unchained(name, version);
+        __DLTPermit_init_unchained(name, version);
     }
 
     // solhint-disable-next-line func-name-mixedcase

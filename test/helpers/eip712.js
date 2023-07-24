@@ -1,20 +1,20 @@
 const ethSigUtil = require("@metamask/eth-sig-util");
 const { expect } = require("chai");
-const { BigNumber } = require("ethers");
-const { keccak256, recoverAddress, toUtf8Bytes } = require("ethers/lib/utils");
+const { ethers } = require("hardhat");
 
 const hexRegex = /[A-Fa-fx]/g;
 
-const toBN = (n) => BigNumber.from(toHex(n, 0));
+const toBN = (n) => BigInt(toHex(n, 0));
 
 const toHex = (n, numBytes) => {
-  const asHexString = BigNumber.isBigNumber(n)
-    ? n.toHexString().slice(2)
-    : typeof n === "string"
-    ? hexRegex.test(n)
-      ? n.replace(/0x/, "")
-      : Number(n).toString(16)
-    : Number(n).toString(16);
+  const asHexString =
+    typeof n === "bigint"
+      ? ethers.toBeHex(n).slice(2)
+      : typeof n === "string"
+      ? hexRegex.test(n)
+        ? n.replace(/0x/, "")
+        : Number(n).toString(16)
+      : Number(n).toString(16);
   return `0x${asHexString.padStart(numBytes * 2, "0")}`;
 };
 
@@ -22,19 +22,19 @@ const calculateDLTPermitHash = (params) => {
   const PermitTypeString =
     "Permit(address owner,address spender,uint256 mainId,uint256 subId,uint256 amount,uint256 nonce,uint256 deadline)";
 
-  const permitTypeHash = keccak256(toUtf8Bytes(PermitTypeString));
+  const permitTypeHash = ethers.keccak256(ethers.toUtf8Bytes(PermitTypeString));
 
-  const derivedPermitHash = keccak256(
+  const derivedPermitHash = ethers.keccak256(
     "0x" +
       [
         permitTypeHash.slice(2),
         params.owner.slice(2).padStart(64, "0"),
         params.spender.slice(2).padStart(64, "0"),
-        toBN(params.mainId).toHexString().slice(2).padStart(64, "0"),
-        toBN(params.subId).toHexString().slice(2).padStart(64, "0"),
-        toBN(params.amount).toHexString().slice(2).padStart(64, "0"),
-        toBN(params.nonce).toHexString().slice(2).padStart(64, "0"),
-        toBN(params.deadline).toHexString().slice(2).padStart(64, "0"),
+        ethers.toBeHex(toBN(params.mainId)).slice(2).padStart(64, "0"),
+        ethers.toBeHex(toBN(params.subId)).slice(2).padStart(64, "0"),
+        ethers.toBeHex(toBN(params.amount)).slice(2).padStart(64, "0"),
+        ethers.toBeHex(toBN(params.nonce)).slice(2).padStart(64, "0"),
+        ethers.toBeHex(toBN(params.deadline)).slice(2).padStart(64, "0"),
       ].join("")
   );
 
@@ -47,8 +47,10 @@ const validateRecoveredAddress = (
   hash,
   signature
 ) => {
-  const digest = keccak256(`0x1901${domainSeparator.slice(2)}${hash.slice(2)}`);
-  const recoveredAddress = recoverAddress(digest, signature);
+  const digest = ethers.keccak256(
+    `0x1901${domainSeparator.slice(2)}${hash.slice(2)}`
+  );
+  const recoveredAddress = ethers.recoverAddress(digest, signature);
   expect(recoveredAddress).to.be.equal(expectAddress);
 };
 

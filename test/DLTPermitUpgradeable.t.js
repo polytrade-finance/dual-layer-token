@@ -29,8 +29,8 @@ describe("DLTPermit", async function () {
     version = "1.0";
     chainId = 31337;
     // ------------------------------------------------------------------
-    const DLTFactory = await ethers.getContractFactory("TestDLT");
-    DLT = await DLTFactory.deploy(name, symbol, version);
+    const DLTFactory = await ethers.getContractFactory("TestDLTUpgradeable");
+    DLT = await upgrades.deployProxy(DLTFactory, [name, symbol, version]);
 
     expect(await DLT.subBalanceOf(initialHolder.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("0")
@@ -42,7 +42,8 @@ describe("DLTPermit", async function () {
       1,
       ethers.parseEther("10000")
     );
-    domainSeparator = await DLT.DOMAIN_SEPARATOR();
+    domainSeparator = await DLT.connect(spender).DOMAIN_SEPARATOR();
+
     expect(await DLT.subBalanceOf(initialHolder.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("10000")
     );
