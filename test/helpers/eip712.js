@@ -22,7 +22,7 @@ const calculateDLTPermitHash = (params) => {
   const PermitTypeString =
     "Permit(address owner,address spender,uint256 mainId,uint256 subId,uint256 amount,uint256 nonce,uint256 deadline)";
 
-  const permitTypeHash = ethers.keccak256(ethers.toUtf8Bytes(PermitTypeString));
+  const permitTypeHash = ethers.id(PermitTypeString);
 
   const derivedPermitHash = ethers.keccak256(
     "0x" +
