@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-contract-sizer");
+require("@openzeppelin/hardhat-upgrades");
 require("dotenv").config();
 
 const { PRIVATE_KEY, ARCHIVAL_RPC } = process.env;

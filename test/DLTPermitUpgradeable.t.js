@@ -7,7 +7,7 @@ const {
   validateRecoveredAddress,
 } = require("./helpers/eip712");
 
-describe("DLTPermit", async function () {
+describe("DLTPermitUpgradeable", async function () {
   let DLT;
   let initialHolder;
   let spender;
@@ -29,8 +29,8 @@ describe("DLTPermit", async function () {
     version = "1.0";
     chainId = 31337;
     // ------------------------------------------------------------------
-    const DLTFactory = await ethers.getContractFactory("TestDLT");
-    DLT = await DLTFactory.deploy(name, symbol, version);
+    const DLTFactory = await ethers.getContractFactory("TestDLTUpgradeable");
+    DLT = await upgrades.deployProxy(DLTFactory, [name, symbol, version]);
 
     expect(await DLT.subBalanceOf(initialHolder.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("0")
@@ -42,10 +42,29 @@ describe("DLTPermit", async function () {
       1,
       ethers.parseEther("10000")
     );
-    domainSeparator = await DLT.DOMAIN_SEPARATOR();
+    domainSeparator = await DLT.connect(spender).DOMAIN_SEPARATOR();
+
     expect(await DLT.subBalanceOf(initialHolder.getAddress(), 1, 1)).to.equal(
       ethers.parseEther("10000")
     );
+  });
+
+  it("Should revert to initialize again", async function () {
+    await expect(DLT.initialize(name, symbol, version)).to.be.revertedWith(
+      "Initializable: contract is already initialized"
+    );
+  });
+
+  it("Should revert to initialize not initializer function", async function () {
+    await expect(DLT.initDLTPermit("Polytrade DLT", "1.0")).to.be.revertedWith(
+      "Initializable: contract is not initializing"
+    );
+  });
+
+  it("Should revert to initialize not initializer unchained function", async function () {
+    await expect(
+      DLT.initDLTPermitUnchained("Polytrade DLT", "1.0")
+    ).to.be.revertedWith("Initializable: contract is not initializing");
   });
 
   it("initial nonce is 0", async function () {
